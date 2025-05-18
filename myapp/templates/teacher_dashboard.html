@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h1 class="text-2xl font-bold text-primary text-center mb-2">Efficient Teacher Dashboard</h1>
+            <p class="text-center text-gray-600 mb-6">
+                Easily find and review student portfolios with our powerful search and filtering tools.
+            </p>
+            <form class="flex flex-wrap gap-4 mb-4">
+                <input type="text" id="searchName" placeholder="Search by student name"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none">
+                <input type="text" id="searchUSN" placeholder="Search by USN"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none">
+                <button type="button" id="searchBtn"
+                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Search</button>
+            </form>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">STUDENT</th>
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">USN</th>
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">DEPARTMENT</th>
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">RESUME</th>
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">LAST UPDATED</th>
+                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portfolioTable">
+                        {% for portfolio in portfolios %}
+                        <tr class="border-b">
+                            <td class="py-3 px-4 flex items-center gap-2">
+                                <span class="inline-block w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                                    <i class="ri-user-line"></i>
+                                </span>
+                                <span class="font-semibold">{{ portfolio.studentName }}</span>
+                            </td>
+                            <td class="py-3 px-4">{{ portfolio.usn }}</td>
+                            <td class="py-3 px-4">{{ portfolio.user.profile.department }}</td>
+                            <td class="py-3 px-4">
+                                {% if portfolio.resume %}
+                                    <a href="{{ portfolio.resume.url }}" target="_blank" class="text-blue-600 hover:underline">View Resume</a>
+                                {% else %}
+                                    <span class="text-gray-400">No Resume</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4">{{ portfolio.updated_at|date:'F d, Y' }}</td>
+                            <td class="py-3 px-4">
+                                <a href="{% url 'portfolio_form' %}?view={{ portfolio.id }}" class="text-blue-600 hover:underline">View Portfolio</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-gray-500">No student portfolios found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('searchBtn').onclick = function(e) {
+    e.preventDefault();
+    const name = document.getElementById('searchName').value.toLowerCase();
+    const usn = document.getElementById('searchUSN').value.toLowerCase();
+    document.querySelectorAll('#portfolioTable tr').forEach(row => {
+        const student = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+        const usnVal = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+        row.style.display = (student.includes(name) && usnVal.includes(usn)) ? '' : 'none';
+    });
+};
+</script>
+{% endblock %} 

@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg transform transition-transform duration-300 hover:shadow-xl">
+        <div class="p-4 border-b">
+            <img src="{% static 'myapp/images/logo.PNG' %}" alt="Logo" class="h-8 w-auto transform transition-transform duration-300 hover:scale-105">
+        </div>
+        <nav class="mt-4">
+            <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-dashboard-line mr-3 text-xl"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'portfolio_form' %}" target="_blank" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-folder-add-line mr-3 text-xl"></i>
+                Portfolio
+            </a>
+            <a href="{% url 'settings' %}" class="flex items-center px-4 py-3 text-gray-700 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-settings-line mr-3 text-xl"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <!-- Top Navigation -->
+        <header class="glass-effect sticky top-0 z-10">
+            <div class="flex items-center justify-between px-6 py-4">
+                <h1 class="text-2xl font-semibold gradient-text">Settings</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-600 hover:text-primary transform transition-all duration-300 hover:scale-110">
+                        <i class="ri-notification-3-line text-xl"></i>
+                    </button>
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transform transition-all duration-300">
+                            <img src="https://ui-avatars.com/api/?name={{ user.email }}&background=3b82f6&color=fff" 
+                                 alt="Profile" 
+                                 class="h-8 w-8 rounded-full ring-2 ring-primary/20 transition-all duration-300 group-hover:ring-primary">
+                            <span>{{ user.profile.full_name|default:user.email }}</span>
+                            <i class="ri-arrow-down-s-line transition-transform duration-300 group-hover:rotate-180"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu">
+                            <a href="{% url 'settings' %}" class="dropdown-item">
+                                <i class="ri-settings-line"></i>
+                                Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item text-red-600 hover:text-red-700">
+                                <i class="ri-logout-box-line"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Content -->
+        <main class="p-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Profile Settings -->
+                <div class="bg-white rounded-lg shadow-sm hover-lift animate-slide-in mb-6">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-800">Profile Settings</h2>
+                    </div>
+                    <div class="p-6">
+                        <form method="POST" action="{% url 'update_profile' %}" class="space-y-6">
+                            {% csrf_token %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" name="full_name" value="{{ user.profile.full_name }}" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">USN</label>
+                                    <input type="text" name="usn" value="{{ user.profile.usn }}" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                    <input type="text" name="department" value="{{ user.profile.department }}" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="tel" name="phone" value="{{ user.profile.phone }}" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <textarea name="address" rows="3" 
+                                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">{{ user.profile.address }}</textarea>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="bg-white rounded-lg shadow-sm hover-lift animate-slide-in mb-6">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-800">Account Settings</h2>
+                    </div>
+                    <div class="p-6">
+                        <form method="POST" action="{% url 'update_password' %}" class="space-y-6">
+                            {% csrf_token %}
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                                    <input type="password" name="current_password" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                                    <input type="password" name="new_password" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                                    <input type="password" name="confirm_password" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="bg-white rounded-lg shadow-sm hover-lift animate-slide-in">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-800">Notification Settings</h2>
+                    </div>
+                    <div class="p-6">
+                        <form method="POST" action="{% url 'update_notifications' %}" class="space-y-6">
+                            {% csrf_token %}
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-700">Email Notifications</h3>
+                                        <p class="text-sm text-gray-500">Receive updates about your portfolio</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="email_notifications" class="sr-only peer" 
+                                               {% if user.profile.email_notifications %}checked{% endif %}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-700">Achievement Alerts</h3>
+                                        <p class="text-sm text-gray-500">Get notified about new achievements</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="achievement_alerts" class="sr-only peer"
+                                               {% if user.profile.achievement_alerts %}checked{% endif %}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                    Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %} 

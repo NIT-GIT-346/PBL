@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Animations */
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .animate-slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .animate-scale-in {
+        animation: scaleIn 0.3s ease-out;
+    }
+
+    /* Hover Effects */
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .hover-glow:hover {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Glass Effect */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Dropdown Menu Styles */
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        min-width: 200px;
+        z-index: 50;
+    }
+
+    .group:hover .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: #4B5563;
+        transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background: #F3F4F6;
+        color: #1F2937;
+    }
+
+    .dropdown-item i {
+        margin-right: 0.75rem;
+    }
+
+    .dropdown-divider {
+        border-top: 1px solid #E5E7EB;
+        margin: 0.5rem 0;
+    }
+</style>
+
+<div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg transform transition-transform duration-300 hover:shadow-xl">
+        <div class="p-4 border-b">
+            <img src="{% static 'myapp/images/logo.PNG' %}" alt="Logo" class="h-8 w-auto transform transition-transform duration-300 hover:scale-105">
+        </div>
+        <nav class="mt-4">
+            <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-dashboard-line mr-3 text-xl"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'portfolio_form' %}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-folder-add-line mr-3 text-xl"></i>
+                Portfolio
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
+                <i class="ri-settings-line mr-3 text-xl"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <!-- Top Navigation -->
+        <header class="glass-effect sticky top-0 z-10">
+            <div class="flex items-center justify-between px-6 py-4">
+                <h1 class="text-2xl font-semibold gradient-text">Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-600 hover:text-primary transform transition-all duration-300 hover:scale-110">
+                        <i class="ri-notification-3-line text-xl"></i>
+                    </button>
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transform transition-all duration-300">
+                            <img src="https://ui-avatars.com/api/?name={{ user.email }}&background=3b82f6&color=fff" 
+                                 alt="Profile" 
+                                 class="h-8 w-8 rounded-full ring-2 ring-primary/20 transition-all duration-300 group-hover:ring-primary">
+                            <span>{{ user.profile.full_name|default:user.email }}</span>
+                            <i class="ri-arrow-down-s-line transition-transform duration-300 group-hover:rotate-180"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-settings-line"></i>
+                                Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item text-red-600 hover:text-red-700">
+                                <i class="ri-logout-box-line"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-primary/10 text-primary transform transition-all duration-300 hover:scale-110">
+                            <i class="ri-folder-line text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Total Projects</h3>
+                            <p class="text-2xl font-semibold text-gray-800">{{ total_projects }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in" style="animation-delay: 0.1s">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 transform transition-all duration-300 hover:scale-110">
+                            <i class="ri-eye-line text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Profile Views</h3>
+                            <p class="text-2xl font-semibold text-gray-800">{{ profile_views }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in" style="animation-delay: 0.2s">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 transform transition-all duration-300 hover:scale-110">
+                            <i class="ri-star-line text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Achievements</h3>
+                            <p class="text-2xl font-semibold text-gray-800">{{ achievements }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Information -->
+            <div class="bg-white rounded-lg shadow-sm hover-lift animate-slide-in mb-6">
+                <div class="p-6 border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">Student Information</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Full Name</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.profile.full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">USN</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.profile.usn }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Department</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.profile.department }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Phone</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.profile.phone }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Address</p>
+                            <p class="text-lg font-medium text-gray-800">{{ user.profile.address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %} 
