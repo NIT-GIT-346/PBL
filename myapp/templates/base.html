@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Portfolio Platform</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#3b82f6',
+        secondary: '#6366f1'
+      },
+      borderRadius: {
+        'none': '0px',
+        'sm': '4px',
+        DEFAULT: '8px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        'full': '9999px',
+        'button': '8px'
+      },
+      width: {
+        '12.5': '5rem',  // 50px
+      },
+      height: {
+        '12.5': '3.125rem',  // 50px
+      }
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Inter', sans-serif;
+background-color: #f9fafb;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.custom-switch {
+position: relative;
+display: inline-block;
+width: 46px;
+height: 24px;
+}
+.custom-switch input {
+opacity: 0;
+width: 0;
+height: 0;
+}
+.slider {
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #e5e7eb;
+transition: .3s;
+border-radius: 24px;
+}
+.slider:before {
+position: absolute;
+content: "";
+height: 18px;
+width: 18px;
+left: 3px;
+bottom: 3px;
+background-color: white;
+transition: .3s;
+border-radius: 50%;
+}
+input:checked + .slider {
+background-color: #3b82f6;
+}
+input:checked + .slider:before {
+transform: translateX(22px);
+}
+.custom-radio {
+display: flex;
+align-items: center;
+cursor: pointer;
+}
+.custom-radio-input {
+appearance: none;
+width: 18px;
+height: 18px;
+border: 2px solid #d1d5db;
+border-radius: 50%;
+margin-right: 8px;
+position: relative;
+cursor: pointer;
+}
+.custom-radio-input:checked {
+border-color: #3b82f6;
+}
+.custom-radio-input:checked::after {
+content: '';
+position: absolute;
+top: 3px;
+left: 3px;
+width: 8px;
+height: 8px;
+background-color: #3b82f6;
+border-radius: 50%;
+}
+.custom-checkbox {
+display: flex;
+align-items: center;
+cursor: pointer;
+}
+.custom-checkbox-input {
+appearance: none;
+width: 18px;
+height: 18px;
+border: 2px solid #d1d5db;
+border-radius: 4px;
+margin-right: 8px;
+position: relative;
+cursor: pointer;
+}
+.custom-checkbox-input:checked {
+background-color: #3b82f6;
+border-color: #3b82f6;
+}
+.custom-checkbox-input:checked::after {
+content: '';
+position: absolute;
+top: 2px;
+left: 5px;
+width: 5px;
+height: 10px;
+border: solid white;
+border-width: 0 2px 2px 0;
+transform: rotate(45deg);
+}
+</style>
+</head>
+<body>
+{% block header %}
+<header class="bg-white shadow-sm">
+<div class="container mx-auto px-4 py-4 flex justify-between items-center">
+<img src="{% static 'myapp/images/logo.PNG' %}" alt="logo" class="w-13 h-12.5 object-contain">
+<div class="flex items-center space-x-4">
+<a href="{% url 'login' %}" class="text-gray-600 hover:text-primary font-medium">Login</a>
+<a href="{% url 'register' %}" class="bg-primary text-white px-4 py-2 !rounded-button font-medium hover:bg-primary/90 whitespace-nowrap">Register</a>
+</div>
+</div>
+</header>
+{% endblock %}
+
+<main>
+{% block content %}
+{% endblock %}
+</main>
+
+{% block footer %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+</body>
+</html>
