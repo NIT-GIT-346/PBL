@@ -63,16 +63,9 @@
         </div>
     </div>
 </div>
-<script>
-document.getElementById('searchBtn').onclick = function(e) {
-    e.preventDefault();
-    const name = document.getElementById('searchName').value.toLowerCase();
-    const usn = document.getElementById('searchUSN').value.toLowerCase();
-    document.querySelectorAll('#portfolioTable tr').forEach(row => {
-        const student = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
-        const usnVal = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
-        row.style.display = (student.includes(name) && usnVal.includes(usn)) ? '' : 'none';
-    });
-};
-</script>
+<!-- Inline script moved to teacher_dashboard.js for better maintainability -->
 {% endblock %} 
+
+{% startblock scripts %}
+<script src="{% static 'js/teacher_dashboard.js' %}"></script>
+{% endblock %}

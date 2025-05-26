@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Portfolio Dashboard</title>
-    {% load static %}
-    {% load i18n %}
+    <!-- {% load static %}
+    {% load in %} -->
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script>
         tailwind.config = {
@@ -91,7 +91,7 @@
                 </div>
                 <!-- Personal Details Section -->
                 <form id="portfolioForm" method="POST" action="{% url 'save_portfolio' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
+                    <!-- {% csrf_token %} -->
                     <div class="mb-6">
                         <div class="bg-primary text-white py-2 px-4 text-center font-medium">
                             PERSONAL DETAILS
@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="form-value w-2/3 p-3 border-b border-gray-300">
                                     <input type="text" id="studentName" name="studentName"
-                                        value="{{ portfolio.studentName|default:'' }}"
+                                        value="{% if portfolio %}{{ portfolio.studentName|default:'' }}{% else %}''{% endif %}"
                                         class="w-full focus:outline-none {% if not is_edit %}bg-gray-100{% endif %}"
                                         placeholder="Enter your full name" {% if not is_edit %}readonly{% endif %} required>
                                 </div>
