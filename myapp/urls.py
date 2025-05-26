@@ -15,4 +15,5 @@ urlpatterns = [
     path('settings/profile/', views.update_profile, name='update_profile'),
     path('settings/password/', views.update_password, name='update_password'),
     path('settings/notifications/', views.update_notifications, name='update_notifications'),
+    path('form/', views.portfolio_form, name='portfolio_form'),
 ]

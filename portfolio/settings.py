@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'portfolio.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'portfolio_db',
+        'USER': 'root',
+        'PASSWORD': 'mysql_rsh_271',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -118,7 +122,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR /'myapp' / 'static',
 ]
 
 # Default primary key field type

@@ -10,6 +10,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Create your views here.
+def portfolio_form(request):
+    return render(request, 'myapp/form.html')
+
 def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
