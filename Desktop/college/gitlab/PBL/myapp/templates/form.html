@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Portfolio Dashboard</title>
-    <!-- {% load static %}
-    {% load in %} -->
+    {% load static %}
+    {% load i18n %}
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script>
         tailwind.config = {
@@ -69,7 +69,7 @@
                 <div class="flex mb-6 border-b pb-4">
                     <div class="flex items-center">
                         <div class="w-20 h-20 mr-4 flex-shrink-0">
-                            <img src="/PBL/myapp/college logo.jpg">
+                            <img src="college-logo.jpg">
                         </div>
                         <div>
                             <h1 class="text-xl font-bold text-primary">Dayananda Sagar Academy of Technology &
@@ -91,7 +91,7 @@
                 </div>
                 <!-- Personal Details Section -->
                 <form id="portfolioForm" method="POST" action="{% url 'save_portfolio' %}" enctype="multipart/form-data">
-                    <!-- {% csrf_token %} -->
+                    {% csrf_token %}
                     <div class="mb-6">
                         <div class="bg-primary text-white py-2 px-4 text-center font-medium">
                             PERSONAL DETAILS
@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="form-value w-2/3 p-3 border-b border-gray-300">
                                     <input type="text" id="studentName" name="studentName"
-                                        value="{% if portfolio %}{{ portfolio.studentName|default:'' }}{% else %}''{% endif %}"
+                                        value="{{ portfolio.studentName|default:'' }}"
                                         class="w-full focus:outline-none {% if not is_edit %}bg-gray-100{% endif %}"
                                         placeholder="Enter your full name" {% if not is_edit %}readonly{% endif %} required>
                                 </div>
