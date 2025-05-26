@@ -38,6 +38,7 @@ def login_view(request):
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+
         
     if request.method == 'POST':
         form = RegisterForm(request.POST)
