@@ -2,70 +2,118 @@
 {% load static %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h1 class="text-2xl font-bold text-primary text-center mb-2">Efficient Teacher Dashboard</h1>
-            <p class="text-center text-gray-600 mb-6">
-                Easily find and review student portfolios with our powerful search and filtering tools.
-            </p>
-            <form class="flex flex-wrap gap-4 mb-4">
-                <input type="text" id="searchName" placeholder="Search by student name"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none">
-                <input type="text" id="searchUSN" placeholder="Search by USN"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none">
-                <button type="button" id="searchBtn"
-                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Search</button>
-            </form>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">STUDENT</th>
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">USN</th>
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">DEPARTMENT</th>
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">RESUME</th>
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">LAST UPDATED</th>
-                            <th class="py-3 px-4 text-left text-gray-600 font-semibold">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="portfolioTable">
-                        {% for portfolio in portfolios %}
-                        <tr class="border-b">
-                            <td class="py-3 px-4 flex items-center gap-2">
-                                <span class="inline-block w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
-                                    <i class="ri-user-line"></i>
-                                </span>
-                                <span class="font-semibold">{{ portfolio.studentName }}</span>
-                            </td>
-                            <td class="py-3 px-4">{{ portfolio.usn }}</td>
-                            <td class="py-3 px-4">{{ portfolio.user.profile.department }}</td>
-                            <td class="py-3 px-4">
-                                {% if portfolio.resume %}
-                                    <a href="{{ portfolio.resume.url }}" target="_blank" class="text-blue-600 hover:underline">View Resume</a>
-                                {% else %}
-                                    <span class="text-gray-400">No Resume</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-4">{{ portfolio.updated_at|date:'F d, Y' }}</td>
-                            <td class="py-3 px-4">
-                                <a href="{% url 'portfolio_form' %}?view={{ portfolio.id }}" class="text-blue-600 hover:underline">View Portfolio</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-6 text-gray-500">No student portfolios found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Efficient Teacher Dashboard</h1>
+        <p class="text-gray-600">Easily find and review student portfolios with our powerful search and filtering tools.</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form id="searchForm" class="flex gap-4">
+            <div class="flex-1">
+                <input type="text" id="nameSearch" placeholder="Search by student name" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
             </div>
-        </div>
+            <div class="flex-1">
+                <input type="text" id="usnSearch" placeholder="Search by USN" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+            </div>
+            <button type="button" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Students Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USN</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Projects</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="studentsTableBody">
+                {% for portfolio in portfolios %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    {{ portfolio.user.profile.full_name|make_list|first|upper }}
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ portfolio.user.profile.full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ portfolio.user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ portfolio.user.profile.usn }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ portfolio.user.profile.department }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% with project_count=portfolio.projects|wordcount %}
+                            {{ project_count }}
+                        {% endwith %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ portfolio.updated_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'portfolio_form' %}?view={{ portfolio.id }}" class="text-primary hover:text-primary-dark">View Portfolio</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        No student portfolios found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-<!-- Inline script moved to teacher_dashboard.js for better maintainability -->
-{% endblock %} 
 
-{% startblock scripts %}
-<script src="{% static 'js/teacher_dashboard.js' %}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameSearch = document.getElementById('nameSearch');
+    const usnSearch = document.getElementById('usnSearch');
+    const rows = document.querySelectorAll('#studentsTableBody tr');
+
+    function filterTable() {
+        const nameFilter = nameSearch.value.toLowerCase();
+        const usnFilter = usnSearch.value.toLowerCase();
+
+        rows.forEach(row => {
+            const name = row.querySelector('.text-gray-900')?.textContent.toLowerCase() || '';
+            const usn = row.querySelector('td:nth-child(2)')?.textContent.trim().toLowerCase() || '';
+
+            const matchesName = name.includes(nameFilter);
+            const matchesUSN = usn.includes(usnFilter);
+
+            if ((nameFilter === '' || matchesName) && (usnFilter === '' || matchesUSN)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    nameSearch.addEventListener('input', filterTable);
+    usnSearch.addEventListener('input', filterTable);
+});
+</script>
 {% endblock %}

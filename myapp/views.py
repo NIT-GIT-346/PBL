@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
 from .forms import LoginForm, RegisterForm, PortfolioForm
 from .models import UserProfile, Portfolio
-from django.http import JsonResponse
 import logging
+# from weasyprint import HTML  # Temporarily commented out
+from django.template.loader import get_template
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +18,17 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'landing.html')
+
+def logout_view(request):
+    print(f"Logout request received. Method: {request.method}")  # Debug print
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, 'You have been successfully logged out.')
+        return JsonResponse({'success': True, 'redirect_url': '/'})
+    elif request.method == 'GET':
+        logout(request)
+        return redirect('home')
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -27,7 +42,7 @@ def login_view(request):
             user = authenticate(username=email, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {user.profile.full_name or user.email}!')
+                messages.success(request, f'Welcome back, {user.profile.full_name}!')
                 return redirect('dashboard')
             else:
                 messages.error(request, 'Invalid email or password.')
@@ -38,20 +53,13 @@ def login_view(request):
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-
         
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create user profile
-            UserProfile.objects.create(
-                user=user,
-                role=form.cleaned_data['role'],
-                department=form.cleaned_data['department'],
-                designation=form.cleaned_data['designation']
-            )
             login(request, user)
+            messages.success(request, f'Welcome, {user.profile.full_name}!')
             return redirect('dashboard')
         else:
             for field, errors in form.errors.items():
@@ -65,39 +73,42 @@ def register_view(request):
 def dashboard_view(request):
     user_profile = request.user.profile
     
-    # Check user role and redirect to appropriate dashboard
     if user_profile.role == 'teacher':
-        portfolios = Portfolio.objects.all().select_related('user__profile').order_by('-created_at')
-        return render(request, 'teacher_dashboard.html', {
-            'portfolios': portfolios
-        })
+        # Get all student portfolios with their related user profiles
+        portfolios = Portfolio.objects.select_related(
+            'user', 
+            'user__profile'
+        ).filter(
+            user__profile__role='student'
+        ).order_by('-updated_at')
+        
+        context = {
+            'portfolios': portfolios,
+            'user_profile': user_profile
+        }
+        return render(request, 'teacher_dashboard.html', context)
     else:
-        # Student dashboard
-        portfolio_entries = Portfolio.objects.filter(user=request.user).order_by('-created_at')
-        return render(request, 'dashboard.html', {
+        try:
+            portfolio = Portfolio.objects.get(user=request.user)
+        except Portfolio.DoesNotExist:
+            portfolio = None
+            
+        context = {
             'user_profile': user_profile,
-            'portfolio_entries': portfolio_entries
-        })
+            'portfolio': portfolio
+        }
+        return render(request, 'dashboard.html', context)
 
 @login_required
 def portfolio_form_view(request):
+    if request.user.profile.role == 'teacher':
+        messages.error(request, 'Teachers cannot create portfolios.')
+        return redirect('dashboard')
+
     try:
         portfolio = Portfolio.objects.get(user=request.user)
-        is_edit = request.GET.get('edit', '').lower() == 'true'
     except Portfolio.DoesNotExist:
         portfolio = None
-        is_edit = False
-
-    print("DEBUG is_edit:", is_edit, "request.GET:", request.GET)  # Debug print
-
-    # If viewing as teacher
-    if request.user.profile.role == 'teacher' and request.GET.get('view'):
-        try:
-            portfolio = Portfolio.objects.get(id=request.GET.get('view'))
-            is_edit = False
-        except Portfolio.DoesNotExist:
-            messages.error(request, 'Portfolio not found')
-            return redirect('dashboard')
 
     if request.method == 'POST':
         form = PortfolioForm(request.POST, request.FILES, instance=portfolio)
@@ -107,6 +118,7 @@ def portfolio_form_view(request):
             if 'resume' in request.FILES:
                 portfolio.resume = request.FILES['resume']
             portfolio.save()
+            messages.success(request, 'Portfolio saved successfully!')
             return redirect('dashboard')
     else:
         form = PortfolioForm(instance=portfolio)
@@ -114,19 +126,9 @@ def portfolio_form_view(request):
     context = {
         'form': form,
         'portfolio': portfolio,
-        'is_edit': is_edit,
-        'semester_choices': [
-            ('1', '1st Semester'),
-            ('2', '2nd Semester'),
-            ('3', '3rd Semester'),
-            ('4', '4th Semester'),
-            ('5', '5th Semester'),
-            ('6', '6th Semester'),
-            ('7', '7th Semester'),
-            ('8', '8th Semester'),
-        ]
+        'is_edit': portfolio is not None
     }
-    return render(request, 'form.html', context)
+    return render(request, 'portfolio_form.html', context)
 
 @login_required
 def settings_view(request):
@@ -191,3 +193,50 @@ def save_portfolio(request):
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@login_required
+def portfolio_view(request):
+    if request.user.profile.role == 'teacher':
+        messages.error(request, 'Teachers cannot access portfolio form.')
+        return redirect('dashboard')
+    return render(request, 'form.html')
+
+@login_required
+def get_portfolio(request):
+    """Return portfolio data as HTML for AJAX loading"""
+    try:
+        portfolio = Portfolio.objects.get(user=request.user)
+    except Portfolio.DoesNotExist:
+        portfolio = None
+    
+    html = render_to_string('portfolio_content.html', {
+        'portfolio': portfolio,
+        'user_profile': request.user.profile
+    })
+    return JsonResponse({'html': html})
+
+@login_required
+def download_portfolio(request):
+    """Generate and download portfolio as PDF"""
+    try:
+        portfolio = Portfolio.objects.get(user=request.user)
+    except Portfolio.DoesNotExist:
+        messages.error(request, 'Portfolio not found.')
+        return redirect('dashboard')
+
+    # Render the template with portfolio data
+    template = get_template('portfolio_pdf.html')
+    html_string = template.render({
+        'portfolio': portfolio,
+        'user_profile': request.user.profile
+    })
+
+    # Temporarily return a simple response instead of PDF
+    response = HttpResponse(html_string, content_type='text/html')
+    return response
+    
+    # PDF generation code commented out temporarily
+    # pdf_file = HTML(string=html_string).write_pdf()
+    # response = HttpResponse(pdf_file, content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="portfolio.pdf"'
+    # return response
