@@ -3,6 +3,27 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile, Portfolio
 
+DEPARTMENT_CHOICES = [
+    ('CSE', 'Computer Science & Engineering'),
+    ('ISE', 'Information Science & Engineering'),
+    ('ECE', 'Electronics & Communication Engineering'),
+    ('EEE', 'Electrical & Electronics Engineering'),
+    ('ME', 'Mechanical Engineering'),
+    ('CV', 'Civil Engineering')
+]
+
+SEMESTER_CHOICES = [
+    ('', 'Select Semester'),  # Adding this as placeholder
+    ('1', '1st Semester'),
+    ('2', '2nd Semester'),
+    ('3', '3rd Semester'),
+    ('4', '4th Semester'),
+    ('5', '5th Semester'),
+    ('6', '6th Semester'),
+    ('7', '7th Semester'),
+    ('8', '8th Semester'),
+]
+
 class LoginForm(AuthenticationForm):
     username = forms.EmailField(
         widget=forms.EmailInput(attrs={
@@ -18,10 +39,42 @@ class LoginForm(AuthenticationForm):
     )
 
 class RegisterForm(UserCreationForm):
+    role = forms.ChoiceField(
+        choices=UserProfile.ROLE_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
+        })
+    )
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
             'placeholder': 'Enter your email'
+        })
+    )
+    full_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'Enter your full name'
+        })
+    )
+    usn = forms.CharField(
+        required=False,  # Make it optional initially
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'Enter your USN'
+        })
+    )
+    department = forms.ChoiceField(
+        choices=DEPARTMENT_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
+        })
+    )
+    semester = forms.ChoiceField(
+        required=False,  # Make it optional initially
+        choices=SEMESTER_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
         })
     )
     password1 = forms.CharField(
@@ -36,108 +89,80 @@ class RegisterForm(UserCreationForm):
             'placeholder': 'Confirm your password'
         })
     )
-    role = forms.ChoiceField(
-        choices=UserProfile.ROLE_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
-        })
-    )
-    department = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'Enter your department'
-        })
-    )
-    designation = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'Enter your designation'
-        })
-    )
 
     class Meta:
         model = User
-        fields = ['email', 'password1', 'password2', 'role', 'department', 'designation']
+        fields = ['role', 'email', 'full_name', 'usn', 'department', 'semester', 'password1', 'password2']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        usn = cleaned_data.get('usn')
+        semester = cleaned_data.get('semester')
+
+        # If role is student, make USN and semester required
+        if role == 'student':
+            if not usn:
+                self.add_error('usn', 'USN is required for students')
+            if not semester:
+                self.add_error('semester', 'Semester is required for students')
+
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        user.username = self.cleaned_data['email']  # Use email as username
+        user.username = self.cleaned_data['email']
         if commit:
             user.save()
-            # Update the user profile
+            user.profile.role = self.cleaned_data['role']
             user.profile.full_name = self.cleaned_data['full_name']
-            user.profile.usn = self.cleaned_data['usn']
             user.profile.department = self.cleaned_data['department']
-            user.profile.phone = self.cleaned_data['phone']
-            user.profile.address = self.cleaned_data['address']
+            
+            # Only set USN and semester for students
+            if self.cleaned_data['role'] == 'student':
+                user.profile.usn = self.cleaned_data['usn']
+                user.profile.semester = self.cleaned_data['semester']
+            
             user.profile.save()
         return user
 
 class PortfolioForm(forms.ModelForm):
-    studentName = forms.CharField(required=True)
-    usn = forms.CharField(required=True)
-    semester = forms.ChoiceField(choices=[(str(i), f"{i}st Semester") for i in range(1, 9)], required=True)
-    email = forms.EmailField(required=True)
-    fatherName = forms.CharField(required=True)
-    motherName = forms.CharField(required=True)
-    address = forms.CharField(widget=forms.Textarea, required=True)
-    parentContact = forms.CharField(required=True)
-    tenthPercentage = forms.FloatField(required=True)
-    tenthSchool = forms.CharField(required=True)
-    tenthBoard = forms.CharField(required=True)
-    tenthYear = forms.IntegerField(required=True)
-    pucPercentage = forms.FloatField(required=True)
-    pucCollege = forms.CharField(required=True)
-    pucBoard = forms.CharField(required=True)
-    pucYear = forms.IntegerField(required=True)
-    cgpa = forms.FloatField(required=True)
-    sem1_sgpa = forms.FloatField(required=False)
-    sem2_sgpa = forms.FloatField(required=False)
-    sem3_sgpa = forms.FloatField(required=False)
-    sem4_sgpa = forms.FloatField(required=False)
-    sem5_sgpa = forms.FloatField(required=False)
-    sem6_sgpa = forms.FloatField(required=False)
-    sem7_sgpa = forms.FloatField(required=False)
-    sem8_sgpa = forms.FloatField(required=False)
-    skills = forms.CharField(widget=forms.Textarea, required=True)
-    certifications = forms.CharField(widget=forms.Textarea, required=True)
-    resume = forms.FileField(required=False)
+    skills = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'List your technical and soft skills',
+            'rows': '4'
+        })
+    )
+    certifications = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'List your certifications and courses',
+            'rows': '4'
+        })
+    )
+    projects = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'Describe your projects',
+            'rows': '4'
+        })
+    )
+    achievements = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+            'placeholder': 'List your achievements and awards',
+            'rows': '4'
+        })
+    )
+    resume = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
+        })
+    )
 
     class Meta:
         model = Portfolio
-        fields = [
-            'studentName', 'usn', 'semester', 'email', 'fatherName', 'motherName',
-            'address', 'parentContact', 'tenthPercentage', 'tenthSchool', 'tenthBoard',
-            'tenthYear', 'pucPercentage', 'pucCollege', 'pucBoard', 'pucYear',
-            'cgpa', 'sem1_sgpa', 'sem2_sgpa', 'sem3_sgpa', 'sem4_sgpa',
-            'sem5_sgpa', 'sem6_sgpa', 'sem7_sgpa', 'sem8_sgpa',
-            'skills', 'certifications', 'resume'
-        ]
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                'placeholder': 'Enter project title'
-            }),
-            'category': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                'placeholder': 'Describe your project',
-                'rows': '4'
-            }),
-            'technologies': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                'placeholder': 'e.g., Python, Django, React'
-            }),
-            'project_url': forms.URLInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                'placeholder': 'https://github.com/username/project'
-            }),
-            'image': forms.FileInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
-            })
-        } 
+        fields = ['skills', 'certifications', 'projects', 'achievements', 'resume'] 

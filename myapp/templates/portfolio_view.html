@@ -10,7 +10,7 @@
             <div class="flex mb-6 border-b pb-4">
                 <div class="flex items-center">
                     <div class="w-20 h-20 mr-4">
-                        <img src="https://readdy.ai/api/search-image?query=educational%20institution%20logo%2C%20college%20emblem%20with%20blue%20and%20gold%20colors%2C%20academic%20shield%20design%2C%20university%20crest%2C%20professional&width=200&height=200&seq=1&orientation=squarish" alt="College Logo" class="w-full h-full object-contain">
+                        <img src="{% static 'myapp/images/dsatm.jpg' %}" alt="College Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <h1 class="text-xl font-bold text-primary">Dayananda Sagar Academy of Technology & Management</h1>
@@ -31,288 +31,146 @@
                 <h2 class="text-xl font-bold">STUDENT PORTFOLIO</h2>
             </div>
 
-            <!-- Personal Details Section -->
-            <div class="mb-6">
-                <div class="bg-primary text-white py-2 px-4 text-center font-medium">
-                    PERSONAL DETAILS
-                </div>
-                <div class="border border-gray-300">
                     <form id="portfolioForm" method="POST" action="{% url 'save_portfolio' %}">
                         {% csrf_token %}
-                        <!-- Name -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="studentName">Name of the Student</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <input type="text" id="studentName" name="studentName" 
-                                       value="{{ portfolio.studentName|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter your full name" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-
-                        <!-- USN -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="usn">USN</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <input type="text" id="usn" name="usn" 
-                                       value="{{ portfolio.usn|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter your USN" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-
-                        <!-- Semester -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="semester">Semester</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <select id="semester" name="semester" 
-                                        class="w-full focus:outline-none pr-8 {% if not is_editing %}bg-gray-100{% endif %}" 
-                                        {% if not is_editing %}disabled{% endif %} required>
-                                    <option value="">Select Semester</option>
-                                    {% for value, label in semester_choices %}
-                                        <option value="{{ value }}" {% if portfolio.semester == value %}selected{% endif %}>
-                                            {{ label }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Contact Mail -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="email">Contact Mail Id</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <input type="email" id="email" name="email" 
-                                       value="{{ portfolio.email|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter your email address" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-
-                        <!-- Father's Name -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="fatherName">Father's Name</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <input type="text" id="fatherName" name="fatherName" 
-                                       value="{{ portfolio.fatherName|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter father's name" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-
-                        <!-- Mother's Name -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="motherName">Mother's Name</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <input type="text" id="motherName" name="motherName" 
-                                       value="{{ portfolio.motherName|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter mother's name" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-
-                        <!-- Permanent Address -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                                <label for="address">Permanent Address</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                                <textarea id="address" name="address" rows="3" 
-                                          class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                          placeholder="Enter your permanent address" 
-                                          {% if not is_editing %}readonly{% endif %} required>{{ portfolio.address|default:'' }}</textarea>
-                            </div>
-                        </div>
-
-                        <!-- Parent's Contact -->
-                        <div class="form-row flex">
-                            <div class="w-1/3 p-3 border-r border-gray-300 font-medium">
-                                <label for="parentContact">Parent's Contact Number</label>
-                            </div>
-                            <div class="form-value w-2/3 p-3 border-gray-300">
-                                <input type="tel" id="parentContact" name="parentContact" 
-                                       value="{{ portfolio.parentContact|default:'' }}"
-                                       class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                       placeholder="Enter parent's contact number" 
-                                       {% if not is_editing %}readonly{% endif %} required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                <!-- Portfolio Content -->
+                <div id="portfolioContent">
+                    <!-- Content will be loaded here -->
             </div>
 
-            <!-- Academic Performance Section -->
-            <div class="mb-6">
-                <div class="bg-primary text-white py-2 px-4 text-center font-medium">
-                    ACADEMIC PERFORMANCE
-                </div>
-                <div class="border border-gray-300">
-                    <!-- 10th Details -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="tenthPercentage">10th Percentage</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="number" id="tenthPercentage" name="tenthPercentage" 
-                                   value="{{ portfolio.tenthPercentage|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   min="0" max="100" step="0.01" 
-                                   placeholder="Enter your 10th percentage" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- 10th School -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="tenthSchool">10th School Name</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="text" id="tenthSchool" name="tenthSchool" 
-                                   value="{{ portfolio.tenthSchool|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   placeholder="Enter your 10th school name" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- 10th Board -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="tenthBoard">10th Board</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="text" id="tenthBoard" name="tenthBoard" 
-                                   value="{{ portfolio.tenthBoard|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   placeholder="Enter your 10th board (e.g., CBSE, State Board)" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- 10th Year of Passing -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="tenthYear">10th Year of Passing</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="number" id="tenthYear" name="tenthYear" 
-                                   value="{{ portfolio.tenthYear|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   min="2000" max="2025" 
-                                   placeholder="Enter your 10th year of passing" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- PUC/12th Percentage -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="pucPercentage">PUC/12th Percentage</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="number" id="pucPercentage" name="pucPercentage" 
-                                   value="{{ portfolio.pucPercentage|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   min="0" max="100" step="0.01" 
-                                   placeholder="Enter your PUC/12th percentage" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- PUC/12th College -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="pucCollege">PUC/12th College Name</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="text" id="pucCollege" name="pucCollege" 
-                                   value="{{ portfolio.pucCollege|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   placeholder="Enter your PUC/12th college name" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- PUC/12th Board -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="pucBoard">PUC/12th Board</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="text" id="pucBoard" name="pucBoard" 
-                                   value="{{ portfolio.pucBoard|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   placeholder="Enter your PUC/12th board" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- PUC/12th Year of Passing -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="pucYear">PUC/12th Year of Passing</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="number" id="pucYear" name="pucYear" 
-                                   value="{{ portfolio.pucYear|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   min="2000" max="2025" 
-                                   placeholder="Enter your PUC/12th year of passing" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-
-                    <!-- CGPA -->
-                    <div class="form-row flex">
-                        <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
-                            <label for="cgpa">Current CGPA</label>
-                        </div>
-                        <div class="form-value w-2/3 p-3 border-b border-gray-300">
-                            <input type="number" id="cgpa" name="cgpa" 
-                                   value="{{ portfolio.cgpa|default:'' }}"
-                                   class="w-full focus:outline-none {% if not is_editing %}bg-gray-100{% endif %}" 
-                                   min="0" max="10" step="0.01" 
-                                   placeholder="Enter your CGPA" 
-                                   {% if not is_editing %}readonly{% endif %} required>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex justify-end mt-6 space-x-4">
-                {% if not is_editing %}
-                    <a href="{% url 'dashboard' %}" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                        Close
-                    </a>
-                    <a href="?edit=true" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                        Edit
-                    </a>
-                {% else %}
-                    <button type="submit" form="portfolioForm" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                        Save Changes
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="printBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                        Print
                     </button>
-                {% endif %}
+                    <button type="button" id="editBtn" class="bg-primary text-white px-6 py-2 rounded hover:bg-primary/90">
+                        Edit
+                    </button>
+                    <button type="button" id="closeBtn" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">
+                        Close
+                    </button>
             </div>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('portfolioForm');
+    const editBtn = document.getElementById('editBtn');
+    const printBtn = document.getElementById('printBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const portfolioContent = document.getElementById('portfolioContent');
+    let isEditMode = false;
+
+    // Load initial portfolio data
+    loadPortfolioData();
+
+    // Toggle edit mode
+    editBtn.addEventListener('click', function() {
+        isEditMode = !isEditMode;
+        if (isEditMode) {
+            enableEditMode();
+            editBtn.textContent = 'Save Details';
+            editBtn.classList.add('bg-green-600');
+            editBtn.classList.remove('bg-primary');
+        } else {
+            savePortfolio();
+        }
+    });
+
+    // Print portfolio
+    printBtn.addEventListener('click', function() {
+        fetch("{% url 'download_portfolio' %}")
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'portfolio.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        })
+        .catch(error => {
+            console.error('Error downloading PDF:', error);
+            alert('Error generating PDF. Please try again.');
+        });
+    });
+
+    // Close and return to dashboard
+    closeBtn.addEventListener('click', function() {
+        window.location.href = "{% url 'dashboard' %}";
+    });
+
+    function loadPortfolioData() {
+        fetch("{% url 'get_portfolio' %}")
+        .then(response => response.json())
+        .then(data => {
+            portfolioContent.innerHTML = data.html;
+            disableEditMode();
+        })
+        .catch(error => {
+            console.error('Error loading portfolio:', error);
+            alert('Error loading portfolio data. Please try again.');
+        });
+    }
+
+    function enableEditMode() {
+        const inputs = portfolioContent.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+        });
+    }
+
+    function disableEditMode() {
+        const inputs = portfolioContent.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.setAttribute('readonly', true);
+            input.setAttribute('disabled', true);
+        });
+    }
+
+    function savePortfolio() {
+        const formData = new FormData(form);
+        fetch("{% url 'save_portfolio' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                isEditMode = false;
+                editBtn.textContent = 'Edit';
+                editBtn.classList.remove('bg-green-600');
+                editBtn.classList.add('bg-primary');
+                disableEditMode();
+                showMessage('Portfolio saved successfully!', 'success');
+            } else {
+                throw new Error(data.message || 'Error saving portfolio');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving portfolio:', error);
+            showMessage('Error saving portfolio. Please try again.', 'error');
+        });
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `fixed top-4 right-4 px-6 py-3 rounded shadow-lg ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+});
+</script>
 {% endblock %} 

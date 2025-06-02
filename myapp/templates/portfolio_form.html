@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">{% if is_edit %}Edit{% else %}Create{% endif %} Portfolio</h1>
+            <p class="text-gray-600">Showcase your skills, projects, and achievements</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Skills</label>
+                    {{ form.skills }}
+                    {% if form.skills.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.skills.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Certifications</label>
+                    {{ form.certifications }}
+                    {% if form.certifications.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.certifications.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Projects</label>
+                    {{ form.projects }}
+                    {% if form.projects.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.projects.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
+                    {{ form.achievements }}
+                    {% if form.achievements.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.achievements.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Resume</label>
+                    {% if portfolio.resume %}
+                    <div class="flex items-center space-x-4 mb-2">
+                        <a href="{{ portfolio.resume.url }}" class="text-primary hover:text-primary-dark" target="_blank">
+                            View Current Resume
+                        </a>
+                    </div>
+                    {% endif %}
+                    {{ form.resume }}
+                    {% if form.resume.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.resume.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'dashboard' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
+                        {% if is_edit %}Save Changes{% else %}Create Portfolio{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

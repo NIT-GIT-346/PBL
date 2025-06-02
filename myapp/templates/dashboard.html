@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block header %}
-{% endblock %}
-
 {% block content %}
+{% csrf_token %}
 <style>
     /* Custom Animations */
     @keyframes slideIn {
@@ -103,137 +101,194 @@
     }
 </style>
 
-<div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+<div class="flex h-screen bg-gray-100">
     <!-- Sidebar -->
-    <div class="w-64 bg-white shadow-lg transform transition-transform duration-300 hover:shadow-xl">
-        <div class="p-4 border-b">
-            <img src="{% static 'myapp/images/logo.PNG' %}" alt="Logo" class="h-8 w-auto transform transition-transform duration-300 hover:scale-105">
+    <div class="w-64 bg-white shadow-md">
+        <div class="p-4">
+            <h2 class="text-xl font-semibold text-gray-800">{{ user_profile.full_name }}</h2>
+            <p class="text-sm text-gray-600">{{ user_profile.usn }}</p>
         </div>
         <nav class="mt-4">
-            <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary transform transition-all duration-300 hover:translate-x-1">
-                <i class="ri-dashboard-line mr-3 text-xl"></i>
-                Dashboard
+            <a href="#profile" class="flex items-center px-6 py-3 text-gray-700 bg-gray-100 border-l-4 border-primary tab-link active" data-tab="profile">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Profile
             </a>
-            <a href="{% url 'portfolio_form' %}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
-                <i class="ri-folder-add-line mr-3 text-xl"></i>
+            <a href="{% url 'portfolio' %}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 hover:border-l-4 hover:border-primary">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
                 Portfolio
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 transform transition-all duration-300 hover:translate-x-1">
-                <i class="ri-settings-line mr-3 text-xl"></i>
-                Settings
             </a>
         </nav>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 overflow-auto">
-        <!-- Top Navigation -->
-        <header class="glass-effect sticky top-0 z-10">
-            <div class="flex items-center justify-between px-6 py-4">
-                <h1 class="text-2xl font-semibold gradient-text">Dashboard</h1>
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="flex justify-between items-center px-8 py-4">
+                <h1 class="text-2xl font-semibold text-gray-800">Student Dashboard</h1>
                 <div class="flex items-center space-x-4">
-                    <button class="p-2 text-gray-600 hover:text-primary transform transition-all duration-300 hover:scale-110">
-                        <i class="ri-notification-3-line text-xl"></i>
+                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Logout</span>
                     </button>
-                    <div class="relative group">
-                        <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transform transition-all duration-300">
-                            <img src="https://ui-avatars.com/api/?name={{ user.email }}&background=3b82f6&color=fff" 
-                                 alt="Profile" 
-                                 class="h-8 w-8 rounded-full ring-2 ring-primary/20 transition-all duration-300 group-hover:ring-primary">
-                            <span>{{ user.profile.full_name|default:user.email }}</span>
-                            <i class="ri-arrow-down-s-line transition-transform duration-300 group-hover:rotate-180"></i>
-                        </button>
-                        <!-- Dropdown Menu -->
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="ri-settings-line"></i>
-                                Settings
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="{% url 'logout' %}" class="dropdown-item text-red-600 hover:text-red-700">
-                                <i class="ri-logout-box-line"></i>
-                                Logout
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- Dashboard Content -->
-        <main class="p-6">
-            <!-- Stats Grid -->
-            <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-primary/10 text-primary transform transition-all duration-300 hover:scale-110">
-                            <i class="ri-folder-line text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm">Total Projects</h3>
-                            <p class="text-2xl font-semibold text-gray-800">{{ total_projects }}</p>
-                        </div>
+        <!-- Profile Tab -->
+        <div id="profile" class="tab-content active p-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold mb-6">Profile Information</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <p class="mt-1 text-gray-900">{{ user_profile.full_name }}</p>
                     </div>
-                </div> -->
-                <!-- <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in" style="animation-delay: 0.1s">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-green-100 text-green-600 transform transition-all duration-300 hover:scale-110">
-                            <i class="ri-eye-line text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm">Profile Views</h3>
-                            <p class="text-2xl font-semibold text-gray-800">{{ profile_views }}</p>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">USN</label>
+                        <p class="mt-1 text-gray-900">{{ user_profile.usn }}</p>
                     </div>
-                </div> -->
-                <!-- <div class="bg-white rounded-lg shadow-sm p-6 hover-lift hover-glow animate-scale-in" style="animation-delay: 0.2s">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 transform transition-all duration-300 hover:scale-110">
-                            <i class="ri-star-line text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm">Achievements</h3>
-                            <p class="text-2xl font-semibold text-gray-800">{{ achievements }}</p>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                        <p class="mt-1 text-gray-900">{{ user_profile.department }}</p>
                     </div>
-                </div>
-            </div> -->
-
-            <!-- Student Information -->
-            <div class="bg-white rounded-lg shadow-sm hover-lift animate-slide-in mb-6">
-                <div class="p-6 border-b">
-                    <h2 class="text-lg font-semibold text-gray-800">Student Information</h2>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-sm text-gray-500">Full Name</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.profile.full_name }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">USN</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.profile.usn }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Department</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.profile.department }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Email</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.email }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Phone</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.profile.phone }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Address</p>
-                            <p class="text-lg font-medium text-gray-800">{{ user.profile.address }}</p>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Semester</label>
+                        <p class="mt-1 text-gray-900">{{ user_profile.semester }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <p class="mt-1 text-gray-900">{{ user_profile.user.email }}</p>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <!-- Portfolio Tab -->
+        <div id="portfolio" class="tab-content hidden p-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Portfolio</h2>
+                    <a href="{% url 'portfolio_form' %}?edit=true" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark">
+                        {% if portfolio %}Edit Portfolio{% else %}Create Portfolio{% endif %}
+                    </a>
+                </div>
+
+                {% if portfolio %}
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Skills</h3>
+                        <p class="text-gray-700">{{ portfolio.skills|linebreaks }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Certifications</h3>
+                        <p class="text-gray-700">{{ portfolio.certifications|linebreaks }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Projects</h3>
+                        <p class="text-gray-700">{{ portfolio.projects|linebreaks }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Achievements</h3>
+                        <p class="text-gray-700">{{ portfolio.achievements|linebreaks }}</p>
+                    </div>
+                    {% if portfolio.resume %}
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Resume</h3>
+                        <a href="{{ portfolio.resume.url }}" class="text-primary hover:text-primary-dark" target="_blank">
+                            View Resume
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500">You haven't created your portfolio yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function showTab(tabId) {
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+            content.classList.remove('active');
+        });
+        tabLinks.forEach(link => {
+            link.classList.remove('bg-gray-100', 'border-l-4', 'border-primary');
+        });
+
+        const selectedTab = document.getElementById(tabId);
+        const selectedLink = document.querySelector(`[data-tab="${tabId}"]`);
+        
+        selectedTab.classList.remove('hidden');
+        selectedTab.classList.add('active');
+        selectedLink.classList.add('bg-gray-100', 'border-l-4', 'border-primary');
+    }
+
+    tabLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabId = link.getAttribute('data-tab');
+            showTab(tabId);
+            window.location.hash = tabId;
+        });
+    });
+
+    // Show the tab based on URL hash or default to profile
+    const hash = window.location.hash.substring(1) || 'profile';
+    showTab(hash);
+
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                console.log('Sending logout request...'); // Debug log
+                const response = await fetch('{% url "logout" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'logout' })
+                });
+
+                console.log('Response received:', response.status); // Debug log
+                const data = await response.json();
+                console.log('Response data:', data); // Debug log
+                
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    console.error('Logout failed:', data.error);
+                    // Fallback to direct navigation if AJAX fails
+                    window.location.href = '{% url "home" %}';
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Fallback to direct navigation if AJAX fails
+                window.location.href = '{% url "home" %}';
+            }
+        });
+    }
+});
+</script>
 {% endblock %} 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Student Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .college-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .field {
+            margin-bottom: 15px;
+        }
+        .field-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .field-value {
+            padding: 5px 0;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="college-name">Dayananda Sagar Academy of Technology & Management</div>
+        <div>(Autonomous Institute under VTU)</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PERSONAL DETAILS</div>
+        <div class="field">
+            <div class="field-label">Name of the Student</div>
+            <div class="field-value">{{ user_profile.full_name }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">USN</div>
+            <div class="field-value">{{ user_profile.usn }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">Department</div>
+            <div class="field-value">{{ user_profile.department }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">Semester</div>
+            <div class="field-value">{{ user_profile.semester }}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PORTFOLIO DETAILS</div>
+        <div class="field">
+            <div class="field-label">Skills</div>
+            <div class="field-value">{{ portfolio.skills }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">Certifications</div>
+            <div class="field-value">{{ portfolio.certifications }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">Projects</div>
+            <div class="field-value">{{ portfolio.projects }}</div>
+        </div>
+        <div class="field">
+            <div class="field-label">Achievements</div>
+            <div class="field-value">{{ portfolio.achievements }}</div>
+        </div>
+    </div>
+
+    <div style="position: fixed; bottom: 20px; width: 100%;">
+        <div style="text-align: right; font-size: 12px; color: #666;">
+            Generated on {% now "F j, Y" %}
+        </div>
+    </div>
+</body>
+</html> 
