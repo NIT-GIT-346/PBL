@@ -1,0 +1,11 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Django-specific
+db.sqlite3
+*.log
+
+# VS Code / IDEs (optional)
+.vscode/
+.idea/
