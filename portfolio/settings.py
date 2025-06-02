@@ -122,11 +122,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-<<<<<<< HEAD
-    BASE_DIR /'myapp' / 'static',
-=======
     BASE_DIR / "myapp" / "static",
->>>>>>> 6394debddbbfb19ff28cb49c0c12cb4bb9468a28
 ]
 
 # Media files (Uploaded files)
