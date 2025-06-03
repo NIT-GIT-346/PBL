@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,6 +10,8 @@ import logging
 # from weasyprint import HTML  # Temporarily commented out
 from django.template.loader import get_template
 import tempfile
+from django.db.models import Count
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -77,12 +79,14 @@ def dashboard_view(request):
     user_profile = request.user.profile
     
     if user_profile.role == 'teacher':
-        # Get all student portfolios with their related user profiles
+        # Get all student portfolios with their related user profiles and project counts
         portfolios = Portfolio.objects.select_related(
             'user', 
             'user__profile'
         ).filter(
             user__profile__role='student'
+        ).annotate(
+            project_count=Count('projects')
         ).order_by('-updated_at')
         
         context = {
@@ -181,20 +185,61 @@ def update_notifications(request):
 def save_portfolio(request):
     if request.method == 'POST':
         try:
-            portfolio = Portfolio.objects.get(user=request.user)
-            form = PortfolioForm(request.POST, request.FILES, instance=portfolio)
-        except Portfolio.DoesNotExist:
-            form = PortfolioForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            portfolio = form.save(commit=False)
-            portfolio.user = request.user
+            portfolio, created = Portfolio.objects.get_or_create(user=request.user)
+            
+            # Personal Details
+            portfolio.studentName = request.POST.get('studentName')
+            portfolio.usn = request.POST.get('usn')
+            portfolio.semester = request.POST.get('semester')
+            portfolio.email = request.POST.get('email')
+            portfolio.fatherName = request.POST.get('fatherName')
+            portfolio.motherName = request.POST.get('motherName')
+            portfolio.address = request.POST.get('address')
+            portfolio.parentContact = request.POST.get('parentContact')
+            
+            # Academic Performance
+            portfolio.tenthPercentage = request.POST.get('tenthPercentage')
+            portfolio.tenthSchool = request.POST.get('tenthSchool')
+            portfolio.tenthBoard = request.POST.get('tenthBoard')
+            portfolio.tenthYear = request.POST.get('tenthYear')
+            
+            portfolio.pucPercentage = request.POST.get('pucPercentage')
+            portfolio.pucCollege = request.POST.get('pucCollege')
+            portfolio.pucBoard = request.POST.get('pucBoard')
+            portfolio.pucYear = request.POST.get('pucYear')
+            
+            portfolio.cgpa = request.POST.get('cgpa')
+            
+            # UG Progress Report
+            portfolio.sem1_sgpa = request.POST.get('sem1_sgpa')
+            portfolio.sem2_sgpa = request.POST.get('sem2_sgpa')
+            portfolio.sem3_sgpa = request.POST.get('sem3_sgpa')
+            portfolio.sem4_sgpa = request.POST.get('sem4_sgpa')
+            portfolio.sem5_sgpa = request.POST.get('sem5_sgpa')
+            portfolio.sem6_sgpa = request.POST.get('sem6_sgpa')
+            portfolio.sem7_sgpa = request.POST.get('sem7_sgpa')
+            portfolio.sem8_sgpa = request.POST.get('sem8_sgpa')
+            
+            # Additional Information
+            portfolio.skills = request.POST.get('skills')
+            portfolio.certifications = request.POST.get('certifications')
+            portfolio.projects = request.POST.get('projects')
+            portfolio.achievements = request.POST.get('achievements')
+            
             if 'resume' in request.FILES:
                 portfolio.resume = request.FILES['resume']
+            
             portfolio.save()
-            return JsonResponse({'status': 'success'})
-        else:
-            return JsonResponse({'status': 'error', 'errors': form.errors})
+            
+            # Update user profile
+            user_profile = request.user.profile
+            user_profile.full_name = portfolio.studentName
+            user_profile.usn = portfolio.usn
+            user_profile.save()
+            
+            return JsonResponse({'status': 'success', 'message': 'Portfolio saved successfully!'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @login_required
@@ -243,3 +288,19 @@ def download_portfolio(request):
     # response = HttpResponse(pdf_file, content_type='application/pdf')
     # response['Content-Disposition'] = 'attachment; filename="portfolio.pdf"'
     # return response
+
+@login_required
+def view_portfolio(request, portfolio_id):
+    """View a specific student's portfolio"""
+    if request.user.profile.role != 'teacher':
+        messages.error(request, 'Only teachers can view student portfolios.')
+        return redirect('dashboard')
+        
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id)
+    
+    context = {
+        'portfolio': portfolio,
+        'user_profile': portfolio.user.profile,
+        'view_only': True
+    }
+    return render(request, 'form.html', context)

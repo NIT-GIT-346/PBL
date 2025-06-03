@@ -62,15 +62,15 @@ background-color: white;
 PERSONAL DETAILS
 </div>
 <div class="border border-gray-300">
-<form id="studentForm" method="POST" action="{% url 'save_portfolio' %}">
-<!-- {% csrf_token %} -->
+<form id="studentForm" method="POST" action="{% url 'save_portfolio' %}" {% if view_only %}class="pointer-events-none"{% endif %}>
+{% csrf_token %}
 <!-- Name -->
 <div class="form-row flex">
 <div class="w-1/3 p-3 border-r border-b border-gray-300 font-medium">
 <label for="studentName">Name of the Student</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="studentName" name="studentName" class="w-full focus:outline-none" placeholder="Enter your full name" required>
+<input type="text" id="studentName" name="studentName" class="w-full focus:outline-none" placeholder="Enter your full name" required value="{{ portfolio.studentName|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- USN -->
@@ -79,7 +79,7 @@ PERSONAL DETAILS
 <label for="usn">USN</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="usn" name="usn" class="w-full focus:outline-none" placeholder="Enter your USN" required>
+<input type="text" id="usn" name="usn" class="w-full focus:outline-none" placeholder="Enter your USN" required value="{{ portfolio.usn|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- Semester -->
@@ -88,16 +88,11 @@ PERSONAL DETAILS
 <label for="semester">Semester</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<select id="semester" name="semester" class="w-full focus:outline-none pr-8" required>
+<select id="semester" name="semester" class="w-full focus:outline-none pr-8" required {% if view_only %}disabled{% endif %}>
 <option value="">Select Semester</option>
-<option value="1">1st Semester</option>
-<option value="2">2nd Semester</option>
-<option value="3">3rd Semester</option>
-<option value="4">4th Semester</option>
-<option value="5">5th Semester</option>
-<option value="6">6th Semester</option>
-<option value="7">7th Semester</option>
-<option value="8">8th Semester</option>
+{% for i in "12345678"|make_list %}
+<option value="{{ i }}" {% if portfolio.semester == i %}selected{% endif %}>{{ i }}th Semester</option>
+{% endfor %}
 </select>
 </div>
 </div>
@@ -107,7 +102,7 @@ PERSONAL DETAILS
 <label for="email">Contact Mail Id</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="email" id="email" name="email" class="w-full focus:outline-none" placeholder="Enter your email address" required>
+<input type="email" id="email" name="email" class="w-full focus:outline-none" placeholder="Enter your email address" required value="{{ portfolio.email|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- Father's Name -->
@@ -116,7 +111,7 @@ PERSONAL DETAILS
 <label for="fatherName">Father's Name</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="fatherName" name="fatherName" class="w-full focus:outline-none" placeholder="Enter father's name" required>
+<input type="text" id="fatherName" name="fatherName" class="w-full focus:outline-none" placeholder="Enter father's name" required value="{{ portfolio.fatherName|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- Mother's Name -->
@@ -125,7 +120,7 @@ PERSONAL DETAILS
 <label for="motherName">Mother's Name</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="motherName" name="motherName" class="w-full focus:outline-none" placeholder="Enter mother's name" required>
+<input type="text" id="motherName" name="motherName" class="w-full focus:outline-none" placeholder="Enter mother's name" required value="{{ portfolio.motherName|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- Permanent Address -->
@@ -134,7 +129,7 @@ PERSONAL DETAILS
 <label for="address">Permanent Address</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<textarea id="address" name="address" rows="3" class="w-full focus:outline-none" placeholder="Enter your permanent address" required></textarea>
+<textarea id="address" name="address" rows="3" class="w-full focus:outline-none" placeholder="Enter your permanent address" required value="{{ portfolio.address|default:'' }}" {% if view_only %}readonly{% endif %}></textarea>
 </div>
 </div>
 <!-- Parent's Contact -->
@@ -143,7 +138,7 @@ PERSONAL DETAILS
 <label for="parentContact">Parent's Contact Number</label>
 </div>
 <div class="form-value w-2/3 p-3 border-gray-300">
-<input type="tel" id="parentContact" name="parentContact" class="w-full focus:outline-none" placeholder="Enter parent's contact number" required>
+<input type="tel" id="parentContact" name="parentContact" class="w-full focus:outline-none" placeholder="Enter parent's contact number" required value="{{ portfolio.parentContact|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 </form>
@@ -161,7 +156,7 @@ ACADEMIC PERFORMANCE
 <label for="tenthPercentage">10th Percentage</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="number" id="tenthPercentage" name="tenthPercentage" min="0" max="100" step="0.01" class="w-full focus:outline-none" placeholder="Enter your 10th percentage" required>
+<input type="number" id="tenthPercentage" name="tenthPercentage" min="0" max="100" step="0.01" class="w-full focus:outline-none" placeholder="Enter your 10th percentage" required value="{{ portfolio.tenthPercentage|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- 10th School -->
@@ -170,7 +165,7 @@ ACADEMIC PERFORMANCE
 <label for="tenthSchool">10th School Name</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="tenthSchool" name="tenthSchool" class="w-full focus:outline-none" placeholder="Enter your 10th school name" required>
+<input type="text" id="tenthSchool" name="tenthSchool" class="w-full focus:outline-none" placeholder="Enter your 10th school name" required value="{{ portfolio.tenthSchool|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- 10th Board -->
@@ -179,7 +174,7 @@ ACADEMIC PERFORMANCE
 <label for="tenthBoard">10th Board</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="tenthBoard" name="tenthBoard" class="w-full focus:outline-none" placeholder="Enter your 10th board (e.g., CBSE, State Board)" required>
+<input type="text" id="tenthBoard" name="tenthBoard" class="w-full focus:outline-none" placeholder="Enter your 10th board (e.g., CBSE, State Board)" required value="{{ portfolio.tenthBoard|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- 10th Year of Passing -->
@@ -188,7 +183,7 @@ ACADEMIC PERFORMANCE
 <label for="tenthYear">10th Year of Passing</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="number" id="tenthYear" name="tenthYear" min="2000" max="2025" class="w-full focus:outline-none" placeholder="Enter your 10th year of passing" required>
+<input type="number" id="tenthYear" name="tenthYear" min="2000" max="2025" class="w-full focus:outline-none" placeholder="Enter your 10th year of passing" required value="{{ portfolio.tenthYear|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- PUC/12th Percentage -->
@@ -197,7 +192,7 @@ ACADEMIC PERFORMANCE
 <label for="pucPercentage">PUC/12th Percentage</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="number" id="pucPercentage" name="pucPercentage" min="0" max="100" step="0.01" class="w-full focus:outline-none" placeholder="Enter your PUC/12th percentage" required>
+<input type="number" id="pucPercentage" name="pucPercentage" min="0" max="100" step="0.01" class="w-full focus:outline-none" placeholder="Enter your PUC/12th percentage" required value="{{ portfolio.pucPercentage|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- PUC/12th College -->
@@ -206,7 +201,7 @@ ACADEMIC PERFORMANCE
 <label for="pucCollege">PUC/12th College Name</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="pucCollege" name="pucCollege" class="w-full focus:outline-none" placeholder="Enter your PUC/12th college name" required>
+<input type="text" id="pucCollege" name="pucCollege" class="w-full focus:outline-none" placeholder="Enter your PUC/12th college name" required value="{{ portfolio.pucCollege|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- PUC/12th Board -->
@@ -215,7 +210,7 @@ ACADEMIC PERFORMANCE
 <label for="pucBoard">PUC/12th Board</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="text" id="pucBoard" name="pucBoard" class="w-full focus:outline-none" placeholder="Enter your PUC/12th board" required>
+<input type="text" id="pucBoard" name="pucBoard" class="w-full focus:outline-none" placeholder="Enter your PUC/12th board" required value="{{ portfolio.pucBoard|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- PUC/12th Year of Passing -->
@@ -224,7 +219,7 @@ ACADEMIC PERFORMANCE
 <label for="pucYear">PUC/12th Year of Passing</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="number" id="pucYear" name="pucYear" min="2000" max="2025" class="w-full focus:outline-none" placeholder="Enter your PUC/12th year of passing" required>
+<input type="number" id="pucYear" name="pucYear" min="2000" max="2025" class="w-full focus:outline-none" placeholder="Enter your PUC/12th year of passing" required value="{{ portfolio.pucYear|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 <!-- CGPA -->
@@ -233,7 +228,7 @@ ACADEMIC PERFORMANCE
 <label for="cgpa">Current CGPA</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<input type="number" id="cgpa" name="cgpa" min="0" max="10" step="0.01" class="w-full focus:outline-none" placeholder="Enter your CGPA" required>
+<input type="number" id="cgpa" name="cgpa" min="0" max="10" step="0.01" class="w-full focus:outline-none" placeholder="Enter your CGPA" required value="{{ portfolio.cgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 </div>
@@ -251,11 +246,11 @@ UG PROGRESS REPORT
 <div class="space-y-4">
 <div>
 <label for="sem1" class="block text-sm font-medium text-gray-700 mb-1">1st Semester SGPA</label>
-<input type="number" id="sem1" name="sem1_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem1" name="sem1_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem1_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 <div>
 <label for="sem2" class="block text-sm font-medium text-gray-700 mb-1">2nd Semester SGPA</label>
-<input type="number" id="sem2" name="sem2_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem2" name="sem2_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem2_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 </div>
@@ -265,11 +260,11 @@ UG PROGRESS REPORT
 <div class="space-y-4">
 <div>
 <label for="sem3" class="block text-sm font-medium text-gray-700 mb-1">3rd Semester SGPA</label>
-<input type="number" id="sem3" name="sem3_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem3" name="sem3_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem3_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 <div>
 <label for="sem4" class="block text-sm font-medium text-gray-700 mb-1">4th Semester SGPA</label>
-<input type="number" id="sem4" name="sem4_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem4" name="sem4_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem4_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 </div>
@@ -279,11 +274,11 @@ UG PROGRESS REPORT
 <div class="space-y-4">
 <div>
 <label for="sem5" class="block text-sm font-medium text-gray-700 mb-1">5th Semester SGPA</label>
-<input type="number" id="sem5" name="sem5_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem5" name="sem5_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem5_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 <div>
 <label for="sem6" class="block text-sm font-medium text-gray-700 mb-1">6th Semester SGPA</label>
-<input type="number" id="sem6" name="sem6_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem6" name="sem6_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem6_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 </div>
 </div>
@@ -293,11 +288,12 @@ UG PROGRESS REPORT
 <div class="space-y-4">
 <div>
 <label for="sem7" class="block text-sm font-medium text-gray-700 mb-1">7th Semester SGPA</label>
-<input type="number" id="sem7" name="sem7_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem7" name="sem7_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem7_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
 </div>
 <div>
 <label for="sem8" class="block text-sm font-medium text-gray-700 mb-1">8th Semester SGPA</label>
-<input type="number" id="sem8" name="sem8_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA">
+<input type="number" id="sem8" name="sem8_sgpa" min="0" max="10" step="0.01" class="w-full border border-gray-300 rounded p-2" placeholder="Enter SGPA" value="{{ portfolio.sem8_sgpa|default:'' }}" {% if view_only %}readonly{% endif %}>
+</div>
 </div>
 </div>
 </div>
@@ -316,7 +312,7 @@ SKILLS & CERTIFICATIONS
 <label for="skills">Technical Skills</label>
 </div>
 <div class="form-value w-2/3 p-3 border-b border-gray-300">
-<textarea id="skills" name="skills" rows="3" class="w-full focus:outline-none" placeholder="Enter your technical skills (comma separated)" required></textarea>
+<textarea id="skills" name="skills" rows="3" class="w-full focus:outline-none" placeholder="Enter your technical skills (comma separated)" required value="{{ portfolio.skills|default:'' }}" {% if view_only %}readonly{% endif %}></textarea>
 </div>
 </div>
 <!-- Certifications -->
@@ -325,17 +321,20 @@ SKILLS & CERTIFICATIONS
 <label for="certifications">Certifications</label>
 </div>
 <div class="form-value w-2/3 p-3 border-gray-300">
-<textarea id="certifications" name="certifications" rows="4" class="w-full focus:outline-none" placeholder="Enter your certifications (one per line)" required></textarea>
+<textarea id="certifications" name="certifications" rows="4" class="w-full focus:outline-none" placeholder="Enter your certifications (one per line)" required value="{{ portfolio.certifications|default:'' }}" {% if view_only %}readonly{% endif %}></textarea>
 </div>
 </div>
 </div>
 </div>
+
+{% if not view_only %}
 <!-- Submit Button -->
 <div class="flex justify-end mt-6">
-<button type="submit" class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-primary/90 transition-colors" onclick="submitForm()">
-Save Details
+<button type="submit" form="studentForm" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+Save Portfolio
 </button>
 </div>
+{% endif %}
 </div>
 </div>
 <!-- Footer -->

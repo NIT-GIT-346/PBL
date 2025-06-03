@@ -13,6 +13,7 @@ urlpatterns = [
     path('portfolio/save/', views.save_portfolio, name='save_portfolio'),
     path('portfolio/get/', views.get_portfolio, name='get_portfolio'),
     path('portfolio/download/', views.download_portfolio, name='download_portfolio'),
+    path('portfolio/view/<int:portfolio_id>/', views.view_portfolio, name='view_portfolio'),
     path('settings/', views.settings_view, name='settings'),
     path('settings/profile/', views.update_profile, name='update_profile'),
     path('settings/password/', views.update_password, name='update_password'),

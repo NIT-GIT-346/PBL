@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'portfolio_db',
         'USER': 'root',
-        'PASSWORD': 'mysql_rsh_271',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
     }
