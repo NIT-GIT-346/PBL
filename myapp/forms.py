@@ -128,41 +128,42 @@ class RegisterForm(UserCreationForm):
         return user
 
 class PortfolioForm(forms.ModelForm):
-    skills = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'List your technical and soft skills',
-            'rows': '4'
-        })
-    )
-    certifications = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'List your certifications and courses',
-            'rows': '4'
-        })
-    )
-    projects = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'Describe your projects',
-            'rows': '4'
-        })
-    )
-    achievements = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-            'placeholder': 'List your achievements and awards',
-            'rows': '4'
-        })
-    )
-    resume = forms.FileField(
-        required=False,
-        widget=forms.FileInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
-        })
-    )
-
     class Meta:
         model = Portfolio
-        fields = ['skills', 'certifications', 'projects', 'achievements', 'resume'] 
+        fields = [
+            'studentName', 'usn', 'semester', 'email', 'fatherName', 'motherName',
+            'address', 'parentContact', 'tenthPercentage', 'tenthSchool',
+            'tenthBoard', 'tenthYear', 'pucPercentage', 'pucCollege',
+            'pucBoard', 'pucYear', 'cgpa', 'sem1_sgpa', 'sem2_sgpa',
+            'sem3_sgpa', 'sem4_sgpa', 'sem5_sgpa', 'sem6_sgpa',
+            'sem7_sgpa', 'sem8_sgpa', 'skills', 'certifications'
+        ]
+        widgets = {
+            'studentName': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'usn': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'semester': forms.Select(attrs={'class': 'w-full focus:outline-none pr-8'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full focus:outline-none'}),
+            'fatherName': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'motherName': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'address': forms.Textarea(attrs={'class': 'w-full focus:outline-none', 'rows': '3'}),
+            'parentContact': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'tenthPercentage': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'tenthSchool': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'tenthBoard': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'tenthYear': forms.NumberInput(attrs={'class': 'w-full focus:outline-none'}),
+            'pucPercentage': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'pucCollege': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'pucBoard': forms.TextInput(attrs={'class': 'w-full focus:outline-none'}),
+            'pucYear': forms.NumberInput(attrs={'class': 'w-full focus:outline-none'}),
+            'cgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem1_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem2_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem3_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem4_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem5_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem6_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem7_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'sem8_sgpa': forms.NumberInput(attrs={'class': 'w-full focus:outline-none', 'step': '0.01'}),
+            'skills': forms.Textarea(attrs={'class': 'w-full focus:outline-none', 'rows': '3'}),
+            'certifications': forms.Textarea(attrs={'class': 'w-full focus:outline-none', 'rows': '3'}),
+        } 

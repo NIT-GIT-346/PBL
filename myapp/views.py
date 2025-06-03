@@ -3,19 +3,49 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
 from .forms import LoginForm, RegisterForm, PortfolioForm
 from .models import UserProfile, Portfolio
 import logging
 # from weasyprint import HTML  # Temporarily commented out
-from django.template.loader import get_template
 import tempfile
 
 logger = logging.getLogger(__name__)
 
+# Define choices
+SEMESTER_CHOICES = [
+    ('', 'Select Semester'),
+    ('1', '1st Semester'),
+    ('2', '2nd Semester'),
+    ('3', '3rd Semester'),
+    ('4', '4th Semester'),
+    ('5', '5th Semester'),
+    ('6', '6th Semester'),
+    ('7', '7th Semester'),
+    ('8', '8th Semester'),
+]
+
 # Create your views here.
+@login_required
 def portfolio_form(request):
-    return render(request, 'myapp/form.html')
+    try:
+        portfolio = Portfolio.objects.get(user=request.user)
+        print("Loading portfolio for user:", request.user.username)
+        print("Portfolio data:", {
+            'studentName': portfolio.studentName,
+            'usn': portfolio.usn,
+            'email': portfolio.email,
+            # Add more fields as needed
+        })
+    except Portfolio.DoesNotExist:
+        portfolio = None
+        print("No existing portfolio found")
+
+    context = {
+        'portfolio': portfolio,
+        'semester_choices': SEMESTER_CHOICES
+    }
+    return render(request, 'form.html', context)
 
 def home(request):
     if request.user.is_authenticated:
@@ -178,31 +208,49 @@ def update_notifications(request):
     return redirect('settings')
 
 @login_required
-def save_portfolio(request):
-    if request.method == 'POST':
-        try:
-            portfolio = Portfolio.objects.get(user=request.user)
-            form = PortfolioForm(request.POST, request.FILES, instance=portfolio)
-        except Portfolio.DoesNotExist:
-            form = PortfolioForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            portfolio = form.save(commit=False)
-            portfolio.user = request.user
-            if 'resume' in request.FILES:
-                portfolio.resume = request.FILES['resume']
-            portfolio.save()
-            return JsonResponse({'status': 'success'})
-        else:
-            return JsonResponse({'status': 'error', 'errors': form.errors})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
-
-@login_required
 def portfolio_view(request):
-    if request.user.profile.role == 'teacher':
-        messages.error(request, 'Teachers cannot access portfolio form.')
-        return redirect('dashboard')
-    return render(request, 'form.html')
+    print("\n=== Loading Portfolio View ===")
+    print("User:", request.user.username)
+    
+    try:
+        portfolio = Portfolio.objects.get(user=request.user)
+        print("Found portfolio with data:", {
+            'studentName': portfolio.studentName,
+            'usn': portfolio.usn,
+            'email': portfolio.email,
+            'fatherName': portfolio.fatherName,
+            'motherName': portfolio.motherName,
+            'address': portfolio.address,
+            'parentContact': portfolio.parentContact,
+            'tenthPercentage': portfolio.tenthPercentage,
+            'tenthSchool': portfolio.tenthSchool,
+            'tenthBoard': portfolio.tenthBoard,
+            'tenthYear': portfolio.tenthYear,
+            'pucPercentage': portfolio.pucPercentage,
+            'pucCollege': portfolio.pucCollege,
+            'pucBoard': portfolio.pucBoard,
+            'pucYear': portfolio.pucYear,
+            'cgpa': portfolio.cgpa,
+            'skills': portfolio.skills,
+            'certifications': portfolio.certifications,
+            'sem1_sgpa': portfolio.sem1_sgpa,
+            'sem2_sgpa': portfolio.sem2_sgpa,
+            'sem3_sgpa': portfolio.sem3_sgpa,
+            'sem4_sgpa': portfolio.sem4_sgpa,
+            'sem5_sgpa': portfolio.sem5_sgpa,
+            'sem6_sgpa': portfolio.sem6_sgpa,
+            'sem7_sgpa': portfolio.sem7_sgpa,
+            'sem8_sgpa': portfolio.sem8_sgpa
+        })
+    except Portfolio.DoesNotExist:
+        portfolio = None
+        print("No portfolio found for user")
+
+    context = {
+        'portfolio': portfolio,
+        'semester_choices': SEMESTER_CHOICES
+    }
+    return render(request, 'form.html', context)
 
 @login_required
 def get_portfolio(request):
@@ -243,3 +291,112 @@ def download_portfolio(request):
     # response = HttpResponse(pdf_file, content_type='application/pdf')
     # response['Content-Disposition'] = 'attachment; filename="portfolio.pdf"'
     # return response
+
+@login_required
+def save_portfolio(request):
+    if request.method == 'POST':
+        print("\n=== DEBUG: Portfolio Save Process ===")
+        print("User:", request.user.username)
+        print("POST data received:", request.POST)
+
+        try:
+            portfolio = Portfolio.objects.get(user=request.user)
+            print("Found existing portfolio for user")
+        except Portfolio.DoesNotExist:
+            portfolio = None
+            print("Creating new portfolio")
+
+        # Create/update portfolio directly
+        if portfolio is None:
+            portfolio = Portfolio(user=request.user)
+        
+        # Update fields directly
+        fields = [
+            'studentName', 'usn', 'semester', 'email', 'fatherName', 'motherName',
+            'address', 'parentContact', 'tenthPercentage', 'tenthSchool',
+            'tenthBoard', 'tenthYear', 'pucPercentage', 'pucCollege',
+            'pucBoard', 'pucYear', 'cgpa', 'skills', 'certifications'
+        ]
+        
+        for field in fields:
+            if field in request.POST:
+                print(f"Setting {field} = {request.POST[field]}")
+                setattr(portfolio, field, request.POST[field])
+
+        # Handle SGPA fields
+        for i in range(1, 9):
+            field = f'sem{i}_sgpa'
+            value = request.POST.get(field, '')
+            print(f"Processing {field} = {value}")  # Debug print
+            if value.strip():  # Only set if value is not empty
+                try:
+                    float_value = float(value)
+                    print(f"Setting {field} = {float_value}")
+                    setattr(portfolio, field, float_value)
+                except ValueError:
+                    print(f"Invalid value for {field}: {value}")
+                    continue
+
+        try:
+            portfolio.save()
+            print("Portfolio saved successfully")
+            print("Saved data:", {
+                'studentName': portfolio.studentName,
+                'usn': portfolio.usn,
+                'email': portfolio.email,
+                'skills': portfolio.skills,
+                'certifications': portfolio.certifications,
+                'sem1_sgpa': portfolio.sem1_sgpa,
+                'sem2_sgpa': portfolio.sem2_sgpa,
+                'sem3_sgpa': portfolio.sem3_sgpa,
+                'sem4_sgpa': portfolio.sem4_sgpa,
+                'sem5_sgpa': portfolio.sem5_sgpa,
+                'sem6_sgpa': portfolio.sem6_sgpa,
+                'sem7_sgpa': portfolio.sem7_sgpa,
+                'sem8_sgpa': portfolio.sem8_sgpa
+            })
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Portfolio saved successfully',
+                'data': {
+                    'studentName': portfolio.studentName,
+                    'usn': portfolio.usn,
+                    'email': portfolio.email,
+                    'semester': portfolio.semester,
+                    'fatherName': portfolio.fatherName,
+                    'motherName': portfolio.motherName,
+                    'address': portfolio.address,
+                    'parentContact': portfolio.parentContact,
+                    'tenthPercentage': portfolio.tenthPercentage,
+                    'tenthSchool': portfolio.tenthSchool,
+                    'tenthBoard': portfolio.tenthBoard,
+                    'tenthYear': portfolio.tenthYear,
+                    'pucPercentage': portfolio.pucPercentage,
+                    'pucCollege': portfolio.pucCollege,
+                    'pucBoard': portfolio.pucBoard,
+                    'pucYear': portfolio.pucYear,
+                    'cgpa': portfolio.cgpa,
+                    'skills': portfolio.skills,
+                    'certifications': portfolio.certifications,
+                    'sem1_sgpa': portfolio.sem1_sgpa,
+                    'sem2_sgpa': portfolio.sem2_sgpa,
+                    'sem3_sgpa': portfolio.sem3_sgpa,
+                    'sem4_sgpa': portfolio.sem4_sgpa,
+                    'sem5_sgpa': portfolio.sem5_sgpa,
+                    'sem6_sgpa': portfolio.sem6_sgpa,
+                    'sem7_sgpa': portfolio.sem7_sgpa,
+                    'sem8_sgpa': portfolio.sem8_sgpa
+                }
+            })
+        except Exception as e:
+            print("Error saving portfolio:", str(e))
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error saving portfolio: {str(e)}'
+            }, status=500)
+
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)
