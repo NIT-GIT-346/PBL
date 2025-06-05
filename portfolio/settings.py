@@ -82,11 +82,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'portfolio_db',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'portfolio25',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
+
 
 
 # Password validation
