@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,6 +9,8 @@ from .models import UserProfile, Portfolio
 import logging
 # from weasyprint import HTML  # Temporarily commented out
 import tempfile
+from django.db.models import Count
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -107,12 +109,14 @@ def dashboard_view(request):
     user_profile = request.user.profile
     
     if user_profile.role == 'teacher':
-        # Get all student portfolios with their related user profiles
+        # Get all student portfolios with their related user profiles and project counts
         portfolios = Portfolio.objects.select_related(
             'user', 
             'user__profile'
         ).filter(
             user__profile__role='student'
+        ).annotate(
+            project_count=Count('projects')
         ).order_by('-updated_at')
         
         context = {
@@ -208,195 +212,144 @@ def update_notifications(request):
     return redirect('settings')
 
 @login_required
+def save_portfolio(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error',
+                             'message': 'Invalid request method'}, status=405)
+
+    try:
+        # Get existing portfolio or create a new one
+        portfolio, _ = Portfolio.objects.get_or_create(user=request.user)
+
+        # ---------- Simple text / choice fields ----------
+        simple_fields = [
+            'studentName', 'usn', 'semester', 'email',
+            'fatherName', 'motherName', 'address', 'parentContact',
+            'tenthSchool', 'tenthBoard', 'tenthYear',
+            'pucCollege', 'pucBoard', 'pucYear',
+            'skills', 'certifications', 'projects', 'achievements',
+        ]
+        for field in simple_fields:
+            if field in request.POST:
+                setattr(portfolio, field, request.POST.get(field) or None)
+
+        # ---------- Decimal / numeric fields ----------
+        numeric_fields = ['tenthPercentage', 'pucPercentage', 'cgpa']
+        for field in numeric_fields:
+            value = request.POST.get(field, '').strip()
+            if value:
+                try:
+                    setattr(portfolio, field, float(value))
+                except ValueError:
+                    # Ignore bad numeric input but keep processing
+                    continue
+
+        # ---------- SGPA loop (sem1_sgpa … sem8_sgpa) ----------
+        for i in range(1, 9):
+            field = f'sem{i}_sgpa'
+            value = request.POST.get(field, '').strip()
+            if value:
+                try:
+                    setattr(portfolio, field, float(value))
+                except ValueError:
+                    continue
+
+        # ---------- File upload (resume) ----------
+        if 'resume' in request.FILES:
+            portfolio.resume = request.FILES['resume']
+
+        portfolio.save()
+
+        # ---------- Sync basic info back to UserProfile ----------
+        profile = request.user.profile
+        profile.full_name = portfolio.studentName or profile.full_name
+        profile.usn = portfolio.usn or profile.usn
+        profile.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Portfolio saved successfully',
+            'data': {
+                'studentName': portfolio.studentName,
+                'usn': portfolio.usn,
+                'semester': portfolio.semester,
+                'email': portfolio.email,
+                'cgpa': portfolio.cgpa,
+                # include more fields if your front-end needs them
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# SHOW THE LOGGED-IN USER'S PORTFOLIO (student view)
+# ──────────────────────────────────────────────────────────────────────
+@login_required
 def portfolio_view(request):
-    print("\n=== Loading Portfolio View ===")
-    print("User:", request.user.username)
-    
     try:
         portfolio = Portfolio.objects.get(user=request.user)
-        print("Found portfolio with data:", {
-            'studentName': portfolio.studentName,
-            'usn': portfolio.usn,
-            'email': portfolio.email,
-            'fatherName': portfolio.fatherName,
-            'motherName': portfolio.motherName,
-            'address': portfolio.address,
-            'parentContact': portfolio.parentContact,
-            'tenthPercentage': portfolio.tenthPercentage,
-            'tenthSchool': portfolio.tenthSchool,
-            'tenthBoard': portfolio.tenthBoard,
-            'tenthYear': portfolio.tenthYear,
-            'pucPercentage': portfolio.pucPercentage,
-            'pucCollege': portfolio.pucCollege,
-            'pucBoard': portfolio.pucBoard,
-            'pucYear': portfolio.pucYear,
-            'cgpa': portfolio.cgpa,
-            'skills': portfolio.skills,
-            'certifications': portfolio.certifications,
-            'sem1_sgpa': portfolio.sem1_sgpa,
-            'sem2_sgpa': portfolio.sem2_sgpa,
-            'sem3_sgpa': portfolio.sem3_sgpa,
-            'sem4_sgpa': portfolio.sem4_sgpa,
-            'sem5_sgpa': portfolio.sem5_sgpa,
-            'sem6_sgpa': portfolio.sem6_sgpa,
-            'sem7_sgpa': portfolio.sem7_sgpa,
-            'sem8_sgpa': portfolio.sem8_sgpa
-        })
     except Portfolio.DoesNotExist:
         portfolio = None
-        print("No portfolio found for user")
 
     context = {
         'portfolio': portfolio,
-        'semester_choices': SEMESTER_CHOICES
+        'semester_choices': SEMESTER_CHOICES,
     }
     return render(request, 'form.html', context)
 
+
+# ──────────────────────────────────────────────────────────────────────
+# AJAX END-POINT TO GET PORTFOLIO CONTENT SNIPPET
+# ──────────────────────────────────────────────────────────────────────
 @login_required
 def get_portfolio(request):
-    """Return portfolio data as HTML for AJAX loading"""
     try:
         portfolio = Portfolio.objects.get(user=request.user)
     except Portfolio.DoesNotExist:
         portfolio = None
-    
+
     html = render_to_string('portfolio_content.html', {
         'portfolio': portfolio,
-        'user_profile': request.user.profile
+        'user_profile': request.user.profile,
     })
     return JsonResponse({'html': html})
 
+
+# ──────────────────────────────────────────────────────────────────────
+# DOWNLOAD PORTFOLIO AS PDF (placeholder HTML response for now)
+# ──────────────────────────────────────────────────────────────────────
 @login_required
 def download_portfolio(request):
-    """Generate and download portfolio as PDF"""
     try:
         portfolio = Portfolio.objects.get(user=request.user)
     except Portfolio.DoesNotExist:
         messages.error(request, 'Portfolio not found.')
         return redirect('dashboard')
 
-    # Render the template with portfolio data
     template = get_template('portfolio_pdf.html')
     html_string = template.render({
         'portfolio': portfolio,
-        'user_profile': request.user.profile
+        'user_profile': request.user.profile,
     })
+    return HttpResponse(html_string, content_type='text/html')
+    # Replace with real PDF logic later
 
-    # Temporarily return a simple response instead of PDF
-    response = HttpResponse(html_string, content_type='text/html')
-    return response
-    
-    # PDF generation code commented out temporarily
-    # pdf_file = HTML(string=html_string).write_pdf()
-    # response = HttpResponse(pdf_file, content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment; filename="portfolio.pdf"'
-    # return response
 
+# ──────────────────────────────────────────────────────────────────────
+# TEACHER-ONLY VIEW OF A STUDENT’S PORTFOLIO
+# ──────────────────────────────────────────────────────────────────────
 @login_required
-def save_portfolio(request):
-    if request.method == 'POST':
-        print("\n=== DEBUG: Portfolio Save Process ===")
-        print("User:", request.user.username)
-        print("POST data received:", request.POST)
+def view_portfolio(request, portfolio_id):
+    if request.user.profile.role != 'teacher':
+        messages.error(request, 'Only teachers can view student portfolios.')
+        return redirect('dashboard')
 
-        try:
-            portfolio = Portfolio.objects.get(user=request.user)
-            print("Found existing portfolio for user")
-        except Portfolio.DoesNotExist:
-            portfolio = None
-            print("Creating new portfolio")
-
-        # Create/update portfolio directly
-        if portfolio is None:
-            portfolio = Portfolio(user=request.user)
-        
-        # Update fields directly
-        fields = [
-            'studentName', 'usn', 'semester', 'email', 'fatherName', 'motherName',
-            'address', 'parentContact', 'tenthPercentage', 'tenthSchool',
-            'tenthBoard', 'tenthYear', 'pucPercentage', 'pucCollege',
-            'pucBoard', 'pucYear', 'cgpa', 'skills', 'certifications'
-        ]
-        
-        for field in fields:
-            if field in request.POST:
-                print(f"Setting {field} = {request.POST[field]}")
-                setattr(portfolio, field, request.POST[field])
-
-        # Handle SGPA fields
-        for i in range(1, 9):
-            field = f'sem{i}_sgpa'
-            value = request.POST.get(field, '')
-            print(f"Processing {field} = {value}")  # Debug print
-            if value.strip():  # Only set if value is not empty
-                try:
-                    float_value = float(value)
-                    print(f"Setting {field} = {float_value}")
-                    setattr(portfolio, field, float_value)
-                except ValueError:
-                    print(f"Invalid value for {field}: {value}")
-                    continue
-
-        try:
-            portfolio.save()
-            print("Portfolio saved successfully")
-            print("Saved data:", {
-                'studentName': portfolio.studentName,
-                'usn': portfolio.usn,
-                'email': portfolio.email,
-                'skills': portfolio.skills,
-                'certifications': portfolio.certifications,
-                'sem1_sgpa': portfolio.sem1_sgpa,
-                'sem2_sgpa': portfolio.sem2_sgpa,
-                'sem3_sgpa': portfolio.sem3_sgpa,
-                'sem4_sgpa': portfolio.sem4_sgpa,
-                'sem5_sgpa': portfolio.sem5_sgpa,
-                'sem6_sgpa': portfolio.sem6_sgpa,
-                'sem7_sgpa': portfolio.sem7_sgpa,
-                'sem8_sgpa': portfolio.sem8_sgpa
-            })
-            
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Portfolio saved successfully',
-                'data': {
-                    'studentName': portfolio.studentName,
-                    'usn': portfolio.usn,
-                    'email': portfolio.email,
-                    'semester': portfolio.semester,
-                    'fatherName': portfolio.fatherName,
-                    'motherName': portfolio.motherName,
-                    'address': portfolio.address,
-                    'parentContact': portfolio.parentContact,
-                    'tenthPercentage': portfolio.tenthPercentage,
-                    'tenthSchool': portfolio.tenthSchool,
-                    'tenthBoard': portfolio.tenthBoard,
-                    'tenthYear': portfolio.tenthYear,
-                    'pucPercentage': portfolio.pucPercentage,
-                    'pucCollege': portfolio.pucCollege,
-                    'pucBoard': portfolio.pucBoard,
-                    'pucYear': portfolio.pucYear,
-                    'cgpa': portfolio.cgpa,
-                    'skills': portfolio.skills,
-                    'certifications': portfolio.certifications,
-                    'sem1_sgpa': portfolio.sem1_sgpa,
-                    'sem2_sgpa': portfolio.sem2_sgpa,
-                    'sem3_sgpa': portfolio.sem3_sgpa,
-                    'sem4_sgpa': portfolio.sem4_sgpa,
-                    'sem5_sgpa': portfolio.sem5_sgpa,
-                    'sem6_sgpa': portfolio.sem6_sgpa,
-                    'sem7_sgpa': portfolio.sem7_sgpa,
-                    'sem8_sgpa': portfolio.sem8_sgpa
-                }
-            })
-        except Exception as e:
-            print("Error saving portfolio:", str(e))
-            return JsonResponse({
-                'status': 'error',
-                'message': f'Error saving portfolio: {str(e)}'
-            }, status=500)
-
-    return JsonResponse({
-        'status': 'error',
-        'message': 'Invalid request method'
-    }, status=405)
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id)
+    context = {
+        'portfolio': portfolio,
+        'user_profile': portfolio.user.profile,
+        'view_only': True,
+    }
+    return render(request, 'form.html', context)

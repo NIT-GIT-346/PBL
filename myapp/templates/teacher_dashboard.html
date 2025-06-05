@@ -10,19 +10,29 @@
 
     <!-- Search Form -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <form id="searchForm" class="flex gap-4">
+        <div class="flex gap-4">
             <div class="flex-1">
-                <input type="text" id="nameSearch" placeholder="Search by student name" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <i class="ri-search-line text-gray-400"></i>
+                    </span>
+                    <input type="text" id="nameSearch" placeholder="Search by student name" 
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                </div>
             </div>
             <div class="flex-1">
-                <input type="text" id="usnSearch" placeholder="Search by USN" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <i class="ri-hashtag text-gray-400"></i>
+                    </span>
+                    <input type="text" id="usnSearch" placeholder="Search by USN" 
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                </div>
             </div>
-            <button type="button" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">
+            <button type="button" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                 Search
             </button>
-        </form>
+        </div>
     </div>
 
     <!-- Students Table -->
@@ -44,32 +54,29 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10">
-                                <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                    {{ portfolio.user.profile.full_name|make_list|first|upper }}
+                                <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                                    <i class="ri-user-line text-xl"></i>
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ portfolio.user.profile.full_name }}</div>
-                                <div class="text-sm text-gray-500">{{ portfolio.user.email }}</div>
+                                <div class="text-sm font-medium text-gray-900">{{ portfolio.studentName }}</div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ portfolio.user.profile.usn }}
+                        {{ portfolio.usn }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ portfolio.user.profile.department }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {% with project_count=portfolio.projects|wordcount %}
-                            {{ project_count }}
-                        {% endwith %}
+                        {{ portfolio.project_count }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ portfolio.updated_at|date:"M d, Y" }}
+                        {{ portfolio.updated_at|date:"F d, Y" }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{% url 'portfolio_form' %}?view={{ portfolio.id }}" class="text-primary hover:text-primary-dark">View Portfolio</a>
+                        <a href="{% url 'view_portfolio' portfolio.id %}" class="text-blue-500 hover:text-blue-600">View Portfolio</a>
                     </td>
                 </tr>
                 {% empty %}
@@ -98,16 +105,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const usnFilter = usnSearch.value.toLowerCase();
 
         rows.forEach(row => {
-            const name = row.querySelector('.text-gray-900')?.textContent.toLowerCase() || '';
-            const usn = row.querySelector('td:nth-child(2)')?.textContent.trim().toLowerCase() || '';
+            if (row.querySelector('td')) {  // Skip if it's the "No portfolios found" row
+                const name = row.querySelector('.text-gray-900')?.textContent.toLowerCase() || '';
+                const usn = row.querySelector('td:nth-child(2)')?.textContent.trim().toLowerCase() || '';
 
-            const matchesName = name.includes(nameFilter);
-            const matchesUSN = usn.includes(usnFilter);
+                const matchesName = name.includes(nameFilter);
+                const matchesUSN = usn.includes(usnFilter);
 
-            if ((nameFilter === '' || matchesName) && (usnFilter === '' || matchesUSN)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+                row.style.display = (nameFilter === '' || matchesName) && (usnFilter === '' || matchesUSN) ? '' : 'none';
             }
         });
     }
