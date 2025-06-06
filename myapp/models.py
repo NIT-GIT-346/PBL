@@ -60,11 +60,11 @@ class Portfolio(models.Model):
     sem8_sgpa = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
 
     # Additional Information
-    skills = models.TextField(blank=True, null=True)
-    certifications = models.TextField(blank=True, null=True)
-    projects = models.TextField(blank=True, null=True)
-    achievements = models.TextField(blank=True, null=True)
-    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
+    skills = models.TextField(null=True, blank=True)
+    certifications = models.TextField(null=True, blank=True)
+    projects = models.TextField(null=True, blank=True)
+    achievements = models.TextField(null=True, blank=True)
+    resume = models.FileField(upload_to='resumes/', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

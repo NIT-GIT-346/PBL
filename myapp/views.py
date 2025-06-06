@@ -109,14 +109,12 @@ def dashboard_view(request):
     user_profile = request.user.profile
     
     if user_profile.role == 'teacher':
-        # Get all student portfolios with their related user profiles and project counts
+        # Get all student portfolios with their related user profiles
         portfolios = Portfolio.objects.select_related(
             'user', 
             'user__profile'
         ).filter(
             user__profile__role='student'
-        ).annotate(
-            project_count=Count('projects')
         ).order_by('-updated_at')
         
         context = {
@@ -338,7 +336,7 @@ def download_portfolio(request):
 
 
 # ──────────────────────────────────────────────────────────────────────
-# TEACHER-ONLY VIEW OF A STUDENT’S PORTFOLIO
+# TEACHER-ONLY VIEW OF A STUDENT'S PORTFOLIO
 # ──────────────────────────────────────────────────────────────────────
 @login_required
 def view_portfolio(request, portfolio_id):
