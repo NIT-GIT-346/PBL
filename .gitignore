@@ -1,11 +1,11 @@
-# Python cache files
+node_modules/
+dist/
+.env
+*.pyc
 __pycache__/
-*.py[cod]
-
-# Django-specific
-db.sqlite3
-*.log
-
-# VS Code / IDEs (optional)
+.venv/
+*.egg-info/
+.DS_Store
 .vscode/
 .idea/
+*.log

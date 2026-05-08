@@ -1,0 +1,58 @@
+PIPELINE_STATUS = [
+    {
+        "component": "Apache Kafka",
+        "status": "Active",
+        "throughput": "12,450 msg/sec",
+        "latency": "2.3ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "Apache Spark",
+        "status": "Active",
+        "throughput": "8,200 records/sec",
+        "latency": "45ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "HDFS Storage",
+        "status": "Active",
+        "throughput": "1.2 GB/sec",
+        "latency": "12ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "Hadoop MapReduce",
+        "status": "Active",
+        "throughput": "3,400 tasks/min",
+        "latency": "120ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "Apache Hive",
+        "status": "Active",
+        "throughput": "500 queries/min",
+        "latency": "230ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "Redis Cache",
+        "status": "Active",
+        "throughput": "45,000 ops/sec",
+        "latency": "0.8ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "PostgreSQL",
+        "status": "Active",
+        "throughput": "2,100 queries/sec",
+        "latency": "5ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+    {
+        "component": "DRL Inference Engine",
+        "status": "Active",
+        "throughput": "150 predictions/sec",
+        "latency": "85ms",
+        "last_updated": "2024-12-15T14:30:00Z",
+    },
+]
