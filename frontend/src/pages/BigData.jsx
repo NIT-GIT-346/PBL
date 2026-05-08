@@ -4,6 +4,11 @@ import GlassCard from '../components/GlassCard'
 import SectionHeader from '../components/SectionHeader'
 import { BIG_DATA_TECHNOLOGIES } from '../data/mockData'
 
+const stepStyles = {
+  cyan: 'bg-cyan/10 border-cyan/30 text-cyan',
+  purple: 'bg-purple/10 border-purple/30 text-purple',
+}
+
 const flowSteps = [
   { label: 'EHR Data', color: 'cyan' },
   { label: 'Kafka Ingest', color: 'purple' },
@@ -41,7 +46,7 @@ export default function BigData() {
                   transition={{ delay: i * 0.15 }}
                   className="flex items-center gap-2"
                 >
-                  <div className={`px-4 py-3 rounded-xl bg-${step.color}/10 border border-${step.color}/30 text-${step.color} font-medium text-sm whitespace-nowrap`}>
+                  <div className={`px-4 py-3 rounded-xl border ${stepStyles[step.color]} font-medium text-sm whitespace-nowrap`}>
                     {step.label}
                   </div>
                   {i < flowSteps.length - 1 && (

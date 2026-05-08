@@ -41,7 +41,7 @@ export default function Architecture() {
 
                   <div
                     onClick={() => setExpandedNode(isExpanded ? null : node.id)}
-                    className={`glass-card p-6 cursor-pointer transition-all duration-300 hover:border-${node.color}/30 ${isExpanded ? `border-${node.color}/40` : ''}`}
+                    className={`glass-card p-6 cursor-pointer transition-all duration-300 ${node.color === 'cyan' ? 'hover:border-cyan/30' : 'hover:border-purple/30'} ${isExpanded ? (node.color === 'cyan' ? 'border-cyan/40' : 'border-purple/40') : ''}`}
                     style={{ borderRadius: '1rem' }}
                   >
                     <div className="flex items-center justify-between">

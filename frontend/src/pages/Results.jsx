@@ -8,6 +8,11 @@ import GlassCard from '../components/GlassCard'
 import SectionHeader from '../components/SectionHeader'
 import { DRL_TRAINING_DATA, MODEL_COMPARISON, CONFUSION_MATRIX } from '../data/mockData'
 
+const colorStyles = {
+  cyan: { icon: 'text-cyan', text: 'text-cyan' },
+  purple: { icon: 'text-purple', text: 'text-purple' },
+}
+
 const metricCards = [
   { icon: TrendingUp, label: 'Best Accuracy', value: '94.23%', color: 'cyan' },
   { icon: Award, label: 'F1 Score', value: '93.49%', color: 'purple' },
@@ -70,8 +75,8 @@ export default function Results() {
                 transition={{ delay: i * 0.1 }}
               >
                 <GlassCard className="text-center">
-                  <Icon className={`w-8 h-8 text-${card.color} mx-auto mb-2`} />
-                  <div className={`font-space text-2xl font-bold text-${card.color} mb-1`}>{card.value}</div>
+                  <Icon className={`w-8 h-8 ${colorStyles[card.color].icon} mx-auto mb-2`} />
+                  <div className={`font-space text-2xl font-bold ${colorStyles[card.color].text} mb-1`}>{card.value}</div>
                   <div className="text-text-secondary text-xs">{card.label}</div>
                 </GlassCard>
               </motion.div>

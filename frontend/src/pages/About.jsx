@@ -3,6 +3,11 @@ import { Database, Brain, Stethoscope, ArrowRight } from 'lucide-react'
 import GlassCard from '../components/GlassCard'
 import SectionHeader from '../components/SectionHeader'
 
+const colorMap = {
+  cyan: { bg: 'bg-cyan/10', text: 'text-cyan', dot: 'bg-cyan', icon: 'text-cyan' },
+  purple: { bg: 'bg-purple/10', text: 'text-purple', dot: 'bg-purple', icon: 'text-purple' },
+}
+
 const pillars = [
   {
     icon: Database,
@@ -102,15 +107,15 @@ export default function About() {
                 transition={{ delay: i * 0.15 }}
               >
                 <GlassCard className="h-full" gradient>
-                  <div className={`w-14 h-14 rounded-xl bg-${pillar.color}/10 flex items-center justify-center mb-4`}>
-                    <Icon className={`w-7 h-7 text-${pillar.color}`} />
+                  <div className={`w-14 h-14 rounded-xl ${colorMap[pillar.color].bg} flex items-center justify-center mb-4`}>
+                    <Icon className={`w-7 h-7 ${colorMap[pillar.color].icon}`} />
                   </div>
                   <h3 className="font-space text-xl font-bold mb-3">{pillar.title}</h3>
                   <p className="text-text-secondary text-sm leading-relaxed mb-4">{pillar.description}</p>
                   <ul className="space-y-2">
                     {pillar.features.map((f, j) => (
                       <li key={j} className="flex items-center gap-2 text-sm text-text-secondary">
-                        <div className={`w-1.5 h-1.5 rounded-full bg-${pillar.color}`} />
+                        <div className={`w-1.5 h-1.5 rounded-full ${colorMap[pillar.color].dot}`} />
                         {f}
                       </li>
                     ))}
