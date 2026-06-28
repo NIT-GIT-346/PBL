@@ -122,6 +122,33 @@
 
     .hint{font-size:12px;color:#9b86a6;margin-top:14px}
 
+    /* reveal gift cards */
+    .reveal-hint{font-size:14px;font-weight:600;color:var(--gold-deep);margin:4px 0 16px}
+    .reveal-hint.done{color:var(--rose);font-family:'Great Vibes',cursive;font-size:26px}
+    .reveal-grid{display:grid;gap:12px;max-width:440px;margin:0 auto}
+    .reveal-card{position:relative;height:92px;border:none;padding:0;cursor:pointer;
+      border-radius:18px;background:transparent;font-family:inherit;perspective:900px}
+    .rc-front,.rc-back{position:absolute;inset:0;border-radius:18px;display:flex;align-items:center;
+      padding:0 18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+    .rc-front{justify-content:center;gap:12px;color:#fff;
+      background:linear-gradient(135deg,var(--rose),#ff5277);box-shadow:0 10px 22px rgba(255,82,119,.35)}
+    .rc-front .gift{font-size:32px;animation:wob 2s ease-in-out infinite;display:inline-block}
+    .rc-front .cta{font-weight:600;font-size:14px;text-align:left;line-height:1.25}
+    @keyframes wob{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+    .rc-back{justify-content:flex-start;gap:14px;text-align:left;
+      background:#fff;border:1px solid rgba(201,150,47,.22);box-shadow:0 8px 18px rgba(91,42,107,.1);
+      transform:rotateY(180deg)}
+    .rc-back .ic{font-size:24px;width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;
+      background:linear-gradient(135deg,#ffe7a3,#f3b95a);border-radius:12px}
+    .rc-back .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#9b86a6;font-weight:600}
+    .rc-back .val{font-size:16px;font-weight:500;color:var(--ink);line-height:1.25}
+    .reveal-card.revealed .rc-front{transform:rotateY(180deg)}
+    .reveal-card.revealed .rc-back{transform:rotateY(360deg)}
+
+    .cd-wrap{max-height:0;opacity:0;overflow:hidden;transition:max-height .7s ease,opacity .7s ease}
+    .cd-wrap.show{max-height:320px;opacity:1;margin-top:6px}
+
     /* balloons */
     .balloons{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
     .balloon{position:absolute;bottom:-160px;width:46px;height:58px;border-radius:50% 50% 48% 48%;
@@ -149,29 +176,30 @@
   <main class="wrap">
     <section class="card">
       <p class="eyebrow">You're warmly invited</p>
-      <div class="sixty">60<span class="amp">years young</span></div>
+      <div class="sixty">60<span class="amp">years</span></div>
       <p class="script">Happy Birthday</p>
       <p class="name" id="honoree">Our Beloved Mom</p>
       <p class="sub">Please join us as we celebrate six wonderful decades of love, laughter & blessings.</p>
 
       <div class="divider"><span></span>🎂<span></span></div>
 
-      <div class="details">
-        <div class="detail">
-          <div class="ic">📅</div>
-          <div><div class="lbl">Date</div><div class="val">Sunday, 12 July 2026</div></div>
-        </div>
-        <div class="detail">
-          <div class="ic">🕧</div>
-          <div><div class="lbl">Time</div><div class="val">12:30 PM onwards</div></div>
-        </div>
-        <div class="detail">
-          <div class="ic">📍</div>
-          <div><div class="lbl">Venue</div><div class="val">St Thomas Community Hall,<br/>Mission Compound, Shimoga</div></div>
-        </div>
+      <p class="reveal-hint" id="revealHint">🎁 Tap each gift to reveal the details!</p>
+      <div class="reveal-grid">
+        <button class="reveal-card" type="button">
+          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Date</span></span>
+          <span class="rc-back"><span class="ic">📅</span><span><span class="lbl">Date</span><br/><span class="val">Sunday, 12 July 2026</span></span></span>
+        </button>
+        <button class="reveal-card" type="button">
+          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Time</span></span>
+          <span class="rc-back"><span class="ic">🕧</span><span><span class="lbl">Time</span><br/><span class="val">12:30 PM onwards</span></span></span>
+        </button>
+        <button class="reveal-card" type="button">
+          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Venue</span></span>
+          <span class="rc-back"><span class="ic">📍</span><span><span class="lbl">Venue</span><br/><span class="val">St Thomas Community Hall, Mission Compound, Shimoga</span></span></span>
+        </button>
       </div>
 
-      <div class="countdown">
+      <div class="countdown cd-wrap" id="cdWrap">
         <div class="cd-title">Counting down to the celebration</div>
         <div class="cd-grid" id="cd">
           <div class="cd-box"><div class="cd-num" id="cd-d">--</div><div class="cd-lbl">Days</div></div>
@@ -288,6 +316,31 @@
       cannons();
       document.getElementById('yay').classList.add('show');
     });
+
+    /* ---------- Reveal gift cards (poppers on click) ---------- */
+    (function(){
+      var cards=document.querySelectorAll('.reveal-card');
+      var hint=document.getElementById('revealHint');
+      var total=cards.length, opened=0;
+      cards.forEach(function(card){
+        card.addEventListener('click', function(e){
+          if(card.classList.contains('revealed')) return;
+          card.classList.add('revealed');
+          var r=card.getBoundingClientRect();
+          var x=(e&&e.clientX)?e.clientX:r.left+r.width/2;
+          var y=(e&&e.clientY)?e.clientY:r.top+r.height/2;
+          burst(x,y,70);            /* popper pops at the button */
+          opened++;
+          if(opened===total){
+            hint.textContent="It's a date \u2014 we hope to see you there!";
+            hint.classList.add('done');
+            document.getElementById('cdWrap').classList.add('show');
+            setTimeout(cannons,180);
+            document.getElementById('yay').classList.add('show');
+          }
+        });
+      });
+    })();
 
     /* ---------- Countdown ---------- */
     (function(){
