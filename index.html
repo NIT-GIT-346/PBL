@@ -186,8 +186,8 @@
       <p class="eyebrow">You're warmly invited</p>
       <div class="sixty">60<span class="amp">years</span></div>
       <p class="script">Happy Birthday</p>
-      <p class="name" id="honoree">Our Beloved Mom</p>
-      <p class="sub">Please join us as we celebrate six wonderful decades of love, laughter & blessings.</p>
+      <p class="name" id="honoree">Bhagya Sudha</p>
+      <p class="sub">Join us to celebrate the 60th birthday of our beloved mom &mdash; six wonderful decades of love, laughter & blessings.</p>
 
       <div class="divider"><span></span>🎂<span></span></div>
 
@@ -209,21 +209,10 @@
         </div>
       </div>
 
-      <div class="countdown cd-wrap" id="cdWrap">
-        <div class="cd-title">Counting down to the celebration</div>
-        <div class="cd-grid" id="cd">
-          <div class="cd-box"><div class="cd-num" id="cd-d">--</div><div class="cd-lbl">Days</div></div>
-          <div class="cd-box"><div class="cd-num" id="cd-h">--</div><div class="cd-lbl">Hours</div></div>
-          <div class="cd-box"><div class="cd-num" id="cd-m">--</div><div class="cd-lbl">Mins</div></div>
-          <div class="cd-box"><div class="cd-num" id="cd-s">--</div><div class="cd-lbl">Secs</div></div>
-        </div>
-      </div>
-
       <div class="actions">
-        <button class="btn btn-primary" id="celebrate">🎉 Count me in!</button>
         <a class="btn btn-gold" id="cal" href="#">📅 Add to Calendar</a>
         <a class="btn btn-plum" id="map" target="_blank" rel="noopener"
-           href="https://www.google.com/maps/search/?api=1&query=St+Thomas+Community+Hall+Mission+Compound+Shimoga">📍 View Venue</a>
+           href="https://share.google/Zk5H7wkTKMJo3XLti">📍 View Venue</a>
         <button class="btn btn-ghost" id="share">🔗 Share Invite</button>
       </div>
 
@@ -240,8 +229,8 @@
   <script>
     /* ---------- CONFIG (edit these to personalize) ---------- */
     var EVENT = {
-      title: "Mom's 60th Birthday Celebration",
-      honoree: "Our Beloved Mom",            // put your mom's name here
+      title: "Bhagya Sudha's 60th Birthday Celebration",
+      honoree: "Bhagya Sudha",            // mom's name
       location: "St Thomas Community Hall, Mission Compound, Shimoga",
       // 12 July 2026, 12:30 PM India Standard Time (UTC+5:30)
       startUTC: "20260712T070000Z",
@@ -321,12 +310,6 @@
       setTimeout(function(){burst(innerWidth*0.5, innerHeight*0.3, 120);},250);
     }
 
-    /* ---------- Celebrate button ---------- */
-    document.getElementById('celebrate').addEventListener('click', function(){
-      cannons();
-      document.getElementById('yay').classList.add('show');
-    });
-
     /* ---------- Reveal everything on button click (poppers!) ---------- */
     (function(){
       var btn=document.getElementById('revealBtn');
@@ -338,31 +321,11 @@
         burst(x,y,90);            /* poppers pop right at the button */
         cannons();
         document.getElementById('detailsReveal').classList.add('show');
-        document.getElementById('cdWrap').classList.add('show');
         document.getElementById('yay').classList.add('show');
         hint.textContent="It's a date \u2014 we hope to see you there!";
         hint.classList.add('done');
         btn.style.display='none';
       });
-    })();
-
-    /* ---------- Countdown ---------- */
-    (function(){
-      var d=document.getElementById('cd-d'),h=document.getElementById('cd-h'),
-          m=document.getElementById('cd-m'),s=document.getElementById('cd-s'),
-          grid=document.getElementById('cd');
-      function pad(n){return (n<10?'0':'')+n;}
-      function tick(){
-        var diff=EVENT.target-new Date();
-        if(diff<=0){ grid.innerHTML='<div class="cd-done" style="grid-column:1/-1">It\'s celebration time! 🎉</div>'; return; }
-        var sec=Math.floor(diff/1000);
-        d.textContent=Math.floor(sec/86400);
-        h.textContent=pad(Math.floor(sec%86400/3600));
-        m.textContent=pad(Math.floor(sec%3600/60));
-        s.textContent=pad(sec%60);
-        requestAnimationFrame(function(){setTimeout(tick,1000);});
-      }
-      tick();
     })();
 
     /* ---------- Add to Calendar (.ics download) ---------- */
