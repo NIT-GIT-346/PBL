@@ -146,6 +146,14 @@
     .reveal-card.revealed .rc-front{transform:rotateY(180deg)}
     .reveal-card.revealed .rc-back{transform:rotateY(360deg)}
 
+    .reveal-btn{margin:4px auto 2px;font-size:17px;padding:16px 26px;animation:pulse 1.8s ease-in-out infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .reveal-box{max-height:0;opacity:0;overflow:hidden;transition:max-height .8s ease,opacity .8s ease,margin .8s ease;margin:0 auto}
+    .reveal-box.show{max-height:600px;opacity:1;margin:18px auto 4px}
+    .reveal-box .detail{transform:translateY(14px);opacity:0;transition:transform .5s ease,opacity .5s ease}
+    .reveal-box.show .detail{transform:none;opacity:1}
+    .reveal-box.show .detail:nth-child(2){transition-delay:.12s}
+    .reveal-box.show .detail:nth-child(3){transition-delay:.24s}
     .cd-wrap{max-height:0;opacity:0;overflow:hidden;transition:max-height .7s ease,opacity .7s ease}
     .cd-wrap.show{max-height:320px;opacity:1;margin-top:6px}
 
@@ -183,20 +191,22 @@
 
       <div class="divider"><span></span>🎂<span></span></div>
 
-      <p class="reveal-hint" id="revealHint">🎁 Tap each gift to reveal the details!</p>
-      <div class="reveal-grid">
-        <button class="reveal-card" type="button">
-          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Date</span></span>
-          <span class="rc-back"><span class="ic">📅</span><span><span class="lbl">Date</span><br/><span class="val">Sunday, 12 July 2026</span></span></span>
-        </button>
-        <button class="reveal-card" type="button">
-          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Time</span></span>
-          <span class="rc-back"><span class="ic">🕧</span><span><span class="lbl">Time</span><br/><span class="val">12:30 PM onwards</span></span></span>
-        </button>
-        <button class="reveal-card" type="button">
-          <span class="rc-front"><span class="gift">🎁</span><span class="cta">Tap to reveal<br/>the Venue</span></span>
-          <span class="rc-back"><span class="ic">📍</span><span><span class="lbl">Venue</span><br/><span class="val">St Thomas Community Hall, Mission Compound, Shimoga</span></span></span>
-        </button>
+      <p class="reveal-hint" id="revealHint">🎁 A little surprise is waiting — tap to open your invitation!</p>
+      <button class="btn btn-primary reveal-btn" id="revealBtn" type="button">🎁 Open Your Invitation</button>
+
+      <div class="details reveal-box" id="detailsReveal">
+        <div class="detail">
+          <div class="ic">📅</div>
+          <div><div class="lbl">Date</div><div class="val">Sunday, 12 July 2026</div></div>
+        </div>
+        <div class="detail">
+          <div class="ic">🕧</div>
+          <div><div class="lbl">Time</div><div class="val">12:30 PM onwards</div></div>
+        </div>
+        <div class="detail">
+          <div class="ic">📍</div>
+          <div><div class="lbl">Venue</div><div class="val">St Thomas Community Hall,<br/>Mission Compound, Shimoga</div></div>
+        </div>
       </div>
 
       <div class="countdown cd-wrap" id="cdWrap">
@@ -317,28 +327,22 @@
       document.getElementById('yay').classList.add('show');
     });
 
-    /* ---------- Reveal gift cards (poppers on click) ---------- */
+    /* ---------- Reveal everything on button click (poppers!) ---------- */
     (function(){
-      var cards=document.querySelectorAll('.reveal-card');
+      var btn=document.getElementById('revealBtn');
       var hint=document.getElementById('revealHint');
-      var total=cards.length, opened=0;
-      cards.forEach(function(card){
-        card.addEventListener('click', function(e){
-          if(card.classList.contains('revealed')) return;
-          card.classList.add('revealed');
-          var r=card.getBoundingClientRect();
-          var x=(e&&e.clientX)?e.clientX:r.left+r.width/2;
-          var y=(e&&e.clientY)?e.clientY:r.top+r.height/2;
-          burst(x,y,70);            /* popper pops at the button */
-          opened++;
-          if(opened===total){
-            hint.textContent="It's a date \u2014 we hope to see you there!";
-            hint.classList.add('done');
-            document.getElementById('cdWrap').classList.add('show');
-            setTimeout(cannons,180);
-            document.getElementById('yay').classList.add('show');
-          }
-        });
+      btn.addEventListener('click', function(e){
+        var r=btn.getBoundingClientRect();
+        var x=(e&&e.clientX)?e.clientX:r.left+r.width/2;
+        var y=(e&&e.clientY)?e.clientY:r.top+r.height/2;
+        burst(x,y,90);            /* poppers pop right at the button */
+        cannons();
+        document.getElementById('detailsReveal').classList.add('show');
+        document.getElementById('cdWrap').classList.add('show');
+        document.getElementById('yay').classList.add('show');
+        hint.textContent="It's a date \u2014 we hope to see you there!";
+        hint.classList.add('done');
+        btn.style.display='none';
       });
     })();
 
